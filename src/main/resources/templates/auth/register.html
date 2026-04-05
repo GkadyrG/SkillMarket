@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register - DotaLink</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: topbar(true)}"></div>
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-3">Create account</h1>
+
+                    <form th:action="@{/register}" th:object="${registrationForm}" method="post" novalidate>
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger py-2" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input id="username" th:field="*{username}" class="form-control" required>
+                            <div id="username-check" class="form-text"></div>
+                            <div class="text-danger small" th:errors="*{username}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input id="email" th:field="*{email}" class="form-control" required>
+                            <div id="email-check" class="form-text"></div>
+                            <div class="text-danger small" th:errors="*{email}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input id="password" th:field="*{password}" type="password" class="form-control" required>
+                            <div class="text-danger small" th:errors="*{password}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm password</label>
+                            <input id="confirmPassword" th:field="*{confirmPassword}" type="password" class="form-control" required>
+                            <div class="text-danger small" th:errors="*{confirmPassword}"></div>
+                        </div>
+
+                        <button class="btn btn-success w-100" type="submit">Register</button>
+                    </form>
+                </div>
+            </div>
+            <p class="text-center mt-3 mb-0">Already have account? <a th:href="@{/login}">Login</a></p>
+        </div>
+    </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script th:src="@{/js/register.js}"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+:root {
+    --bg-1: #f6f9ff;
+    --bg-2: #e9f1ff;
+    --bg-3: #f2f7ec;
+    --brand: #1f4aa8;
+    --brand-strong: #173a87;
+    --text-main: #1f2937;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    position: relative;
+    margin: 0;
+    color: var(--text-main);
+    background:
+            radial-gradient(900px 500px at -10% -10%, rgba(76, 126, 255, 0.28) 0%, rgba(76, 126, 255, 0) 70%),
+            radial-gradient(900px 500px at 110% 10%, rgba(56, 189, 248, 0.22) 0%, rgba(56, 189, 248, 0) 70%),
+            radial-gradient(800px 600px at 50% 120%, rgba(74, 222, 128, 0.18) 0%, rgba(74, 222, 128, 0) 70%),
+            linear-gradient(155deg, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(rgba(31, 41, 55, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 41, 55, 0.05) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: 0.2;
+    z-index: 0;
+}
+
+nav,
+main {
+    position: relative;
+    z-index: 1;
+}
+
+.navbar {
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+}
+
+.navbar-dark {
+    background: linear-gradient(90deg, #172554 0%, #1e3a8a 55%, #1d4ed8 100%) !important;
+}
+
+.card,
+.table-responsive,
+.list-group {
+    border: 0;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12) !important;
+}
+
+.btn-primary,
+.btn-success {
+    border: 0;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--brand) 0%, #2563eb 100%);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--brand-strong) 0%, #1d4ed8 100%);
+}

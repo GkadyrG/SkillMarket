@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Profile - DotaLink</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: topbar(true)}"></div>
+<main class="container py-4">
+    <h1 class="h3 mb-3">My profile</h1>
+
+    <div th:if="${successMessage}" class="alert alert-success py-2" th:text="${successMessage}"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="h5" th:text="${profile.nickname}">Nickname</h2>
+            <p class="mb-1"><strong>Rank:</strong> <span th:text="${profile.rank ?: '-'}"></span></p>
+            <p class="mb-1"><strong>Region:</strong> <span th:text="${profile.region ?: '-'}"></span></p>
+            <p class="mb-1"><strong>Play time:</strong> <span th:text="${profile.playTime ?: '-'}"></span></p>
+            <p class="mb-2"><strong>Preferred roles:</strong> <span th:text="${profile.preferredRolesText ?: '-'}"></span></p>
+            <p class="mb-3" th:text="${profile.about ?: 'No description yet'}"></p>
+
+            <div class="mb-3">
+                <span class="badge text-bg-secondary me-1" th:each="hero : ${profile.favoriteHeroes}" th:text="${hero.name}"></span>
+                <span th:if="${#lists.isEmpty(profile.favoriteHeroes)}" class="text-muted">No favorite heroes selected</span>
+            </div>
+
+            <a class="btn btn-primary" th:href="@{/profile/edit}">Edit profile</a>
+            <a class="btn btn-outline-dark" th:href="@{/account/dota}">Dota account</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

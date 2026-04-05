@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DotaLink</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: topbar(false)}"></div>
+
+<main class="container py-5">
+    <div class="p-5 bg-light rounded-4 shadow-sm">
+        <h1 class="display-6 mb-3">DotaLink</h1>
+        <p class="lead mb-0">Educational Spring Boot team project. Core module for auth, security, profile and Dota account is being implemented.</p>
+    </div>
+</main>
+</body>
+</html>

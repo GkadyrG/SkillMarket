@@ -1,0 +1,11 @@
+target/
+.DS_Store
+.idea/
+*.iml
+.env
+logs/
+.classpath
+.project
+.settings/
+.mvn/wrapper/apache-maven-3.9.9/
+.mvn/wrapper/apache-maven-3.9.9-bin.tar.gz

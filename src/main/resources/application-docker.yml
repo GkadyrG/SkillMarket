@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:dotalink}
+    username: ${DB_USER:dotalink}
+    password: ${DB_PASSWORD:dotalink}
+
+integration:
+  steam:
+    enabled: ${STEAM_API_ENABLED:false}
+    api-key: ${STEAM_API_KEY:}
+    base-url: ${STEAM_API_BASE_URL:https://api.steampowered.com}
