@@ -1,8 +1,7 @@
 package com.example.dotalink.security;
 
-import com.example.dotalink.common.exception.UserNotFoundException;
-import com.example.dotalink.feature.account.model.User;
-import com.example.dotalink.feature.account.repository.UserRepository;
+import com.example.dotalink.feature.user.model.User;
+import com.example.dotalink.feature.user.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),

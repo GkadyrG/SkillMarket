@@ -1,6 +1,6 @@
-package com.example.dotalink.feature.account.repository;
+package com.example.dotalink.feature.dotaaccount.repository;
 
-import com.example.dotalink.feature.account.model.DotaAccount;
+import com.example.dotalink.feature.dotaaccount.model.DotaAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

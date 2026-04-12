@@ -62,8 +62,10 @@ CREATE TABLE party_posts (
     description TEXT,
     required_rank VARCHAR(40),
     role_needed VARCHAR(40),
+    region VARCHAR(40),
     status VARCHAR(20) NOT NULL,
     created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     author_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -105,10 +107,10 @@ VALUES
     (2, 1),
     (2, 4);
 
-INSERT INTO party_posts (title, description, required_rank, role_needed, status, created_at, author_id)
+INSERT INTO party_posts (title, description, required_rank, role_needed, region, status, created_at, updated_at, author_id)
 VALUES
-    ('Need pos4 for ranked', 'Evening games, Discord required', 'Legend', 'Support', 'OPEN', NOW(), 2),
-    ('Turbo chill stack', 'Fun games only', 'Any', 'Any', 'OPEN', NOW(), 1);
+    ('Need pos4 for ranked', 'Evening games, Discord required', 'Legend', 'Support', 'EU', 'OPEN', NOW(), NOW(), 2),
+    ('Turbo chill stack', 'Fun games only', 'Any', 'Any', 'US East', 'OPEN', NOW(), NOW(), 1);
 
 INSERT INTO party_applications (message, status, created_at, post_id, applicant_id)
 VALUES

@@ -1,33 +1,24 @@
 $(function () {
-    function check(field, endpoint, outputId) {
-        const value = $(field).val();
-        const out = $(outputId);
+    const password = $("#password");
+    const confirm = $("#confirmPassword");
+    const output = $("#password-check");
 
-        if (!value) {
-            out.text("").removeClass("text-success text-danger");
+    function validatePasswords() {
+        if (!password.val() && !confirm.val()) {
+            output.text("").removeClass("text-success text-danger");
             return;
         }
 
-        $.ajax({
-            url: endpoint,
-            method: "GET",
-            data: { value: value }
-        }).done(function (resp) {
-            if (resp.available) {
-                out.text("Available").removeClass("text-danger").addClass("text-success");
-            } else {
-                out.text("Already in use").removeClass("text-success").addClass("text-danger");
-            }
-        }).fail(function () {
-            out.text("Check failed").removeClass("text-success").addClass("text-danger");
-        });
+        if (password.val() === confirm.val()) {
+            output.text("Passwords match").removeClass("text-danger").addClass("text-success");
+        } else {
+            output.text("Passwords do not match").removeClass("text-success").addClass("text-danger");
+        }
     }
 
-    $("#username").on("blur", function () {
-        check("#username", "/api/auth/check-username", "#username-check");
-    });
-
-    $("#email").on("blur", function () {
-        check("#email", "/api/auth/check-email", "#email-check");
+    password.on("input", validatePasswords);
+    confirm.on("input", validatePasswords);
+    $("#email").on("input", function () {
+        $("#email-check").text("").removeClass("text-success text-danger");
     });
 });

@@ -1,4 +1,6 @@
-package com.example.dotalink.feature.account.model;
+package com.example.dotalink.feature.dotaaccount.model;
+
+import com.example.dotalink.feature.user.model.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

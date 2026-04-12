@@ -1,8 +1,8 @@
-package com.example.dotalink.feature.account.controller;
+package com.example.dotalink.feature.profile.controller;
 
-import com.example.dotalink.feature.account.dto.PlayerSearchFilter;
-import com.example.dotalink.feature.account.model.DotaRank;
-import com.example.dotalink.feature.account.service.PlayerSearchService;
+import com.example.dotalink.feature.profile.dto.PlayerSearchFilter;
+import com.example.dotalink.feature.profile.model.DotaRank;
+import com.example.dotalink.feature.profile.service.PlayerDirectoryService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class PlayersController {
 
-    private final PlayerSearchService playerSearchService;
+    private final PlayerDirectoryService playerSearchService;
 
-    public PlayersController(PlayerSearchService playerSearchService) {
+    public PlayersController(PlayerDirectoryService playerSearchService) {
         this.playerSearchService = playerSearchService;
     }
 

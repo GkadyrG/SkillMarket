@@ -1,4 +1,4 @@
-package com.example.dotalink.feature.account.model;
+package com.example.dotalink.feature.profile.model;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,28 +13,28 @@ public enum DotaRank {
     DIVINE("Divine"),
     IMMORTAL("Immortal");
 
-    private final String value;
+    private final String displayName;
 
-    DotaRank(String value) {
-        this.value = value;
+    DotaRank(String displayName) {
+        this.displayName = displayName;
     }
 
-    public String getValue() {
-        return value;
+    public String getDisplayName() {
+        return displayName;
     }
 
     public static String normalizeOrNull(String raw) {
         if (raw == null || raw.isBlank()) {
             return null;
         }
-        return Arrays.stream(values())
-                .map(DotaRank::getValue)
-                .filter(value -> value.equalsIgnoreCase(raw.trim()))
+        String normalized = raw.trim();
+        return valuesList().stream()
+                .filter(value -> value.equalsIgnoreCase(normalized))
                 .findFirst()
                 .orElse(null);
     }
 
     public static List<String> valuesList() {
-        return Arrays.stream(values()).map(DotaRank::getValue).toList();
+        return Arrays.stream(values()).map(DotaRank::getDisplayName).toList();
     }
 }

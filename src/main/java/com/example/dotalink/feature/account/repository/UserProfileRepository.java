@@ -1,6 +1,6 @@
-package com.example.dotalink.feature.account.repository;
+package com.example.dotalink.feature.profile.repository;
 
-import com.example.dotalink.feature.account.model.UserProfile;
+import com.example.dotalink.feature.profile.model.UserProfile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

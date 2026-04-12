@@ -1,4 +1,4 @@
-package com.example.dotalink.feature.account.dto;
+package com.example.dotalink.feature.dotaaccount.dto;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

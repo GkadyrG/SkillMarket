@@ -1,8 +1,8 @@
-package com.example.dotalink.feature.account.controller;
+package com.example.dotalink.feature.profile.controller;
 
-import com.example.dotalink.feature.account.dto.ProfileEditForm;
-import com.example.dotalink.feature.account.model.DotaRank;
-import com.example.dotalink.feature.account.service.ProfileService;
+import com.example.dotalink.feature.profile.dto.UserProfileDto;
+import com.example.dotalink.feature.profile.model.DotaRank;
+import com.example.dotalink.feature.profile.service.ProfileService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -32,7 +32,7 @@ public class ProfileController {
     @GetMapping("/profile/edit")
     public String editProfilePage(Authentication authentication, Model model) {
         if (!model.containsAttribute("profileForm")) {
-            model.addAttribute("profileForm", profileService.getEditForm(authentication.getName()));
+            model.addAttribute("profileForm", profileService.getEditDto(authentication.getName()));
         }
         model.addAttribute("rankOptions", DotaRank.valuesList());
         model.addAttribute("heroes", profileService.getAllHeroes());
@@ -42,7 +42,7 @@ public class ProfileController {
     @PostMapping("/profile/edit")
     public String editProfile(
             Authentication authentication,
-            @Valid @ModelAttribute("profileForm") ProfileEditForm profileForm,
+            @Valid @ModelAttribute("profileForm") UserProfileDto profileForm,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes
@@ -58,7 +58,7 @@ public class ProfileController {
         return "redirect:/profile/me";
     }
 
-    @GetMapping("/players/{username}")
+    @GetMapping("/profiles/{username}")
     public String publicProfile(@PathVariable String username, Model model) {
         model.addAttribute("profile", profileService.getPublicProfile(username));
         return "players/public-profile";

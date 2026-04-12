@@ -1,13 +1,13 @@
-package com.example.dotalink.feature.account.service;
+package com.example.dotalink.feature.dotaaccount.service;
 
 import com.example.dotalink.common.exception.DotaAccountNotFoundException;
 import com.example.dotalink.common.exception.UserNotFoundException;
-import com.example.dotalink.feature.account.dto.DotaAccountForm;
-import com.example.dotalink.feature.account.dto.DotaAccountResponse;
-import com.example.dotalink.feature.account.model.DotaAccount;
-import com.example.dotalink.feature.account.model.User;
-import com.example.dotalink.feature.account.repository.DotaAccountRepository;
-import com.example.dotalink.feature.account.repository.UserRepository;
+import com.example.dotalink.feature.dotaaccount.dto.DotaAccountForm;
+import com.example.dotalink.feature.dotaaccount.dto.DotaAccountViewDto;
+import com.example.dotalink.feature.dotaaccount.model.DotaAccount;
+import com.example.dotalink.feature.dotaaccount.repository.DotaAccountRepository;
+import com.example.dotalink.feature.user.model.User;
+import com.example.dotalink.feature.user.repository.UserRepository;
 import com.example.dotalink.integration.dota.DotaExternalProfile;
 import com.example.dotalink.integration.dota.DotaApiClient;
 import org.slf4j.Logger;
@@ -88,8 +88,8 @@ public class DotaAccountService {
     }
 
     @Transactional(readOnly = true)
-    public DotaAccountResponse toResponse(DotaAccount account) {
-        return new DotaAccountResponse(
+    public DotaAccountViewDto toViewDto(DotaAccount account) {
+        return new DotaAccountViewDto(
                 account.getId(),
                 account.getSteamId(),
                 account.getAccountId(),

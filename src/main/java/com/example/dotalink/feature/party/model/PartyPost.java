@@ -1,6 +1,7 @@
-package com.example.dotalink.feature.party.model;
+package com.example.dotalink.feature.partypost.model;
 
-import com.example.dotalink.feature.account.model.User;
+import com.example.dotalink.feature.application.model.PartyApplication;
+import com.example.dotalink.feature.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,10 +12,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "party_posts")
@@ -36,6 +41,9 @@ public class PartyPost {
     @Column(name = "role_needed", length = 40)
     private String roleNeeded;
 
+    @Column(length = 40)
+    private String region;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private PartyPostStatus status;
@@ -43,13 +51,26 @@ public class PartyPost {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<PartyApplication> applications = new ArrayList<>();
+
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -92,6 +113,14 @@ public class PartyPost {
         this.roleNeeded = roleNeeded;
     }
 
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
     public PartyPostStatus getStatus() {
         return status;
     }
@@ -108,11 +137,27 @@ public class PartyPost {
         this.createdAt = createdAt;
     }
 
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     public User getAuthor() {
         return author;
     }
 
     public void setAuthor(User author) {
         this.author = author;
+    }
+
+    public List<PartyApplication> getApplications() {
+        return applications;
+    }
+
+    public void setApplications(List<PartyApplication> applications) {
+        this.applications = applications;
     }
 }
