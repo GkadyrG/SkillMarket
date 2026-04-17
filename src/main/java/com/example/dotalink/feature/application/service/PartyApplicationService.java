@@ -40,15 +40,18 @@ public class PartyApplicationService {
     public PartyApplicationDto apply(Long postId, String username, PartyApplicationDto request) {
         PartyPost post = partyPostRepository.findWithAuthorById(postId)
                 .orElseThrow(() -> new PartyPostNotFoundException("Party post not found: " + postId));
+
         User applicant = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
 
         if (post.getAuthor() != null && post.getAuthor().getId().equals(applicant.getId())) {
             throw new AccessDeniedBusinessException("Author cannot apply to own post");
         }
+
         if (post.getStatus() != PartyPostStatus.OPEN) {
             throw new AccessDeniedBusinessException("Applications are closed for this post");
         }
+
         if (partyApplicationRepository.findByPostIdAndApplicantId(postId, applicant.getId()).isPresent()) {
             throw new DuplicatePartyApplicationException("You have already applied to this post");
         }
@@ -60,15 +63,52 @@ public class PartyApplicationService {
         application.setStatus(PartyApplicationStatus.NEW);
 
         PartyApplication savedApplication = partyApplicationRepository.save(application);
-        log.info("Created application: id={}, postId={}, applicant={}", savedApplication.getId(), postId, username);
+        log.info("Created application: id={}, postId={}, applicant={}",
+                savedApplication.getId(), postId, username);
+
         return toDto(savedApplication);
     }
 
     @Transactional(readOnly = true)
-    public List<PartyApplicationDto> getApplicationsForPost(Long postId) {
-        return partyApplicationRepository.findAllByPostIdOrderByCreatedAtDesc(postId).stream()
+    public List<PartyApplicationDto> getApplicationsForPost(Long postId, String username) {
+        PartyPost post = partyPostRepository.findWithAuthorById(postId)
+                .orElseThrow(() -> new PartyPostNotFoundException("Party post not found: " + postId));
+
+        validatePostOwner(post, username);
+
+        return partyApplicationRepository.findAllDetailedByPostIdOrderByCreatedAtDesc(postId).stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    @Transactional
+    public PartyApplicationDto updateStatus(Long applicationId, PartyApplicationStatus newStatus, String username) {
+        PartyApplication application = partyApplicationRepository.findDetailedById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Application not found: " + applicationId));
+
+        PartyPost post = application.getPost();
+        if (post == null) {
+            throw new IllegalArgumentException("Application has no related post");
+        }
+
+        validatePostOwner(post, username);
+
+        application.setStatus(newStatus);
+        PartyApplication savedApplication = partyApplicationRepository.save(application);
+
+        log.info("Updated application status: applicationId={}, postId={}, newStatus={}, changedBy={}",
+                savedApplication.getId(),
+                savedApplication.getPost().getId(),
+                savedApplication.getStatus(),
+                username);
+
+        return toDto(savedApplication);
+    }
+
+    private void validatePostOwner(PartyPost post, String username) {
+        if (post.getAuthor() == null || !post.getAuthor().getUsername().equals(username)) {
+            throw new AccessDeniedBusinessException("Only the author of the post can access applications");
+        }
     }
 
     private PartyApplicationDto toDto(PartyApplication application) {
