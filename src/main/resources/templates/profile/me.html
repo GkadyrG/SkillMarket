@@ -24,8 +24,8 @@
             <p class="mb-3" th:text="${profile.about ?: 'No description yet'}"></p>
 
             <div class="mb-3">
-                <span class="badge text-bg-secondary me-1" th:each="hero : ${profile.favoriteHeroes}" th:text="${hero.name}"></span>
-                <span th:if="${#lists.isEmpty(profile.favoriteHeroes)}" class="text-muted">No favorite heroes selected</span>
+                <span class="badge text-bg-secondary me-1" th:each="hero : ${profile.favoriteHeroNames}" th:text="${hero}"></span>
+                <span th:if="${#lists.isEmpty(profile.favoriteHeroNames)}" class="text-muted">No favorite heroes selected</span>
             </div>
 
             <a class="btn btn-primary" th:href="@{/profile/edit}">Edit profile</a>

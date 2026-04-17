@@ -1,7 +1,8 @@
-package com.example.dotalink.feature.account.dto;
+package com.example.dotalink.feature.dotaaccount.dto;
 
 import java.time.LocalDateTime;
 
+@Deprecated
 public record DotaAccountResponse(
         Long id,
         String steamId,

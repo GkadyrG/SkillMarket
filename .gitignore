@@ -9,3 +9,4 @@ logs/
 .settings/
 .mvn/wrapper/apache-maven-3.9.9/
 .mvn/wrapper/apache-maven-3.9.9-bin.tar.gz
+.mvn/wrapper/apache-maven-3.9.9-bin.zip

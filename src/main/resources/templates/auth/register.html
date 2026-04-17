@@ -16,14 +16,13 @@
                 <div class="card-body p-4">
                     <h1 class="h4 mb-3">Create account</h1>
 
-                    <form th:action="@{/register}" th:object="${registrationForm}" method="post" novalidate>
+                    <form th:action="@{/register}" th:object="${registerRequest}" method="post" novalidate>
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger py-2" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
 
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input id="username" th:field="*{username}" class="form-control" required>
-                            <div id="username-check" class="form-text"></div>
                             <div class="text-danger small" th:errors="*{username}"></div>
                         </div>
 
@@ -43,6 +42,7 @@
                         <div class="mb-3">
                             <label for="confirmPassword" class="form-label">Confirm password</label>
                             <input id="confirmPassword" th:field="*{confirmPassword}" type="password" class="form-control" required>
+                            <div id="password-check" class="form-text"></div>
                             <div class="text-danger small" th:errors="*{confirmPassword}"></div>
                         </div>
 

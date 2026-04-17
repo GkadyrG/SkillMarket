@@ -15,6 +15,7 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <h2 class="h5" th:text="${profile.nickname}">Nickname</h2>
+            <p class="mb-1"><strong>Username:</strong> <span th:text="${profile.username ?: '-'}"></span></p>
             <p class="mb-1"><strong>Rank:</strong> <span th:text="${profile.rank ?: '-'}"></span></p>
             <p class="mb-1"><strong>Region:</strong> <span th:text="${profile.region ?: '-'}"></span></p>
             <p class="mb-1"><strong>Play time:</strong> <span th:text="${profile.playTime ?: '-'}"></span></p>

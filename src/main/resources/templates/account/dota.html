@@ -60,22 +60,15 @@
                     <div class="text-danger small" th:errors="*{avatarUrl}"></div>
                 </div>
 
-                <button class="btn btn-success" type="submit">Save (PRG)</button>
-                <button id="ajax-save-btn" class="btn btn-outline-primary" type="button" th:attr="data-has-account=${account != null}">Save via AJAX</button>
+                <button class="btn btn-success" type="submit">Save</button>
             </form>
 
             <form th:if="${account != null}" th:action="@{/account/dota/delete}" method="post" class="mt-3">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <button class="btn btn-outline-danger" type="submit">Unlink Dota account</button>
-                <button id="ajax-delete-btn" class="btn btn-danger" type="button">Delete via AJAX</button>
             </form>
-
-            <div id="ajax-result" class="small mt-3"></div>
         </div>
     </div>
 </main>
-
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script th:src="@{/js/dota-account.js}"></script>
 </body>
 </html>

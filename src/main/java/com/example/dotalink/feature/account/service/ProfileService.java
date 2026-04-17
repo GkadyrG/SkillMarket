@@ -1,15 +1,15 @@
-package com.example.dotalink.feature.account.service;
+package com.example.dotalink.feature.profile.service;
 
 import com.example.dotalink.common.exception.ProfileNotFoundException;
 import com.example.dotalink.common.exception.UserNotFoundException;
-import com.example.dotalink.feature.account.dto.ProfileEditForm;
-import com.example.dotalink.feature.account.model.Hero;
-import com.example.dotalink.feature.account.model.User;
-import com.example.dotalink.feature.account.model.UserProfile;
-import com.example.dotalink.feature.account.model.DotaRank;
-import com.example.dotalink.feature.account.repository.HeroRepository;
-import com.example.dotalink.feature.account.repository.UserProfileRepository;
-import com.example.dotalink.feature.account.repository.UserRepository;
+import com.example.dotalink.feature.hero.model.Hero;
+import com.example.dotalink.feature.hero.repository.HeroRepository;
+import com.example.dotalink.feature.profile.dto.UserProfileDto;
+import com.example.dotalink.feature.profile.model.DotaRank;
+import com.example.dotalink.feature.profile.model.UserProfile;
+import com.example.dotalink.feature.profile.repository.UserProfileRepository;
+import com.example.dotalink.feature.user.model.User;
+import com.example.dotalink.feature.user.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -37,36 +37,18 @@ public class ProfileService {
     }
 
     @Transactional(readOnly = true)
-    public UserProfile getMyProfile(String username) {
-        UserProfile profile = userProfileRepository.findByUserUsername(username)
-                .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user: " + username));
-        profile.getFavoriteHeroes().size();
-        return profile;
+    public UserProfileDto getMyProfile(String username) {
+        return toDto(loadProfileByUsername(username));
     }
 
     @Transactional(readOnly = true)
-    public UserProfile getPublicProfile(String username) {
-        UserProfile profile = userProfileRepository.findByUserUsername(username)
-                .orElseThrow(() -> new ProfileNotFoundException("Profile not found for username: " + username));
-        if (profile.getUser() != null) {
-            profile.getUser().getUsername();
-        }
-        return profile;
+    public UserProfileDto getPublicProfile(String username) {
+        return toDto(loadProfileByUsername(username));
     }
 
     @Transactional(readOnly = true)
-    public ProfileEditForm getEditForm(String username) {
-        UserProfile profile = getMyProfile(username);
-
-        ProfileEditForm form = new ProfileEditForm();
-        form.setNickname(profile.getNickname());
-        form.setRank(profile.getRank());
-        form.setRegion(profile.getRegion());
-        form.setPlayTime(profile.getPlayTime());
-        form.setAbout(profile.getAbout());
-        form.setPreferredRolesText(profile.getPreferredRolesText());
-        form.setFavoriteHeroIds(profile.getFavoriteHeroes().stream().map(Hero::getId).toList());
-        return form;
+    public UserProfileDto getEditDto(String username) {
+        return toDto(loadProfileByUsername(username));
     }
 
     @Transactional(readOnly = true)
@@ -75,7 +57,7 @@ public class ProfileService {
     }
 
     @Transactional
-    public void updateMyProfile(String username, ProfileEditForm form) {
+    public void updateMyProfile(String username, UserProfileDto form) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
 
@@ -97,6 +79,30 @@ public class ProfileService {
 
         userProfileRepository.save(profile);
         log.info("Profile updated: userId={}, username={}", user.getId(), user.getUsername());
+    }
+
+    private UserProfile loadProfileByUsername(String username) {
+        UserProfile profile = userProfileRepository.findByUserUsername(username)
+                .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user: " + username));
+        profile.getFavoriteHeroes().size();
+        if (profile.getUser() != null) {
+            profile.getUser().getUsername();
+        }
+        return profile;
+    }
+
+    private UserProfileDto toDto(UserProfile profile) {
+        UserProfileDto dto = new UserProfileDto();
+        dto.setNickname(profile.getNickname());
+        dto.setRank(profile.getRank());
+        dto.setRegion(profile.getRegion());
+        dto.setPlayTime(profile.getPlayTime());
+        dto.setAbout(profile.getAbout());
+        dto.setPreferredRolesText(profile.getPreferredRolesText());
+        dto.setFavoriteHeroIds(profile.getFavoriteHeroes().stream().map(Hero::getId).toList());
+        dto.setFavoriteHeroNames(profile.getFavoriteHeroes().stream().map(Hero::getName).toList());
+        dto.setUsername(profile.getUser() != null ? profile.getUser().getUsername() : null);
+        return dto;
     }
 
     private String clean(String value) {

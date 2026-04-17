@@ -1,7 +1,7 @@
-package com.example.dotalink.feature.account.controller;
+package com.example.dotalink.feature.dotaaccount.controller;
 
-import com.example.dotalink.feature.account.dto.DotaAccountForm;
-import com.example.dotalink.feature.account.service.DotaAccountService;
+import com.example.dotalink.feature.dotaaccount.dto.DotaAccountForm;
+import com.example.dotalink.feature.dotaaccount.service.DotaAccountService;
 import com.example.dotalink.integration.dota.SteamApiProperties;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;

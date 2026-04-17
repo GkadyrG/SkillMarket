@@ -1,4 +1,9 @@
-package com.example.dotalink.feature.account.model;
+package com.example.dotalink.feature.user.model;
+
+import com.example.dotalink.feature.application.model.PartyApplication;
+import com.example.dotalink.feature.dotaaccount.model.DotaAccount;
+import com.example.dotalink.feature.partypost.model.PartyPost;
+import com.example.dotalink.feature.profile.model.UserProfile;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -56,10 +61,10 @@ public class User {
     private DotaAccount dotaAccount;
 
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
-    private List<com.example.dotalink.feature.party.model.PartyPost> partyPosts = new ArrayList<>();
+    private List<PartyPost> partyPosts = new ArrayList<>();
 
     @OneToMany(mappedBy = "applicant", fetch = FetchType.LAZY)
-    private List<com.example.dotalink.feature.party.model.PartyApplication> partyApplications = new ArrayList<>();
+    private List<PartyApplication> partyApplications = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
@@ -153,19 +158,19 @@ public class User {
         this.dotaAccount = dotaAccount;
     }
 
-    public List<com.example.dotalink.feature.party.model.PartyPost> getPartyPosts() {
+    public List<PartyPost> getPartyPosts() {
         return partyPosts;
     }
 
-    public void setPartyPosts(List<com.example.dotalink.feature.party.model.PartyPost> partyPosts) {
+    public void setPartyPosts(List<PartyPost> partyPosts) {
         this.partyPosts = partyPosts;
     }
 
-    public List<com.example.dotalink.feature.party.model.PartyApplication> getPartyApplications() {
+    public List<PartyApplication> getPartyApplications() {
         return partyApplications;
     }
 
-    public void setPartyApplications(List<com.example.dotalink.feature.party.model.PartyApplication> partyApplications) {
+    public void setPartyApplications(List<PartyApplication> partyApplications) {
         this.partyApplications = partyApplications;
     }
 }

@@ -7,6 +7,8 @@ import com.example.dotalink.common.exception.DuplicateEmailException;
 import com.example.dotalink.common.exception.DuplicateUsernameException;
 import com.example.dotalink.common.exception.ProfileNotFoundException;
 import com.example.dotalink.common.exception.UserNotFoundException;
+import com.example.dotalink.feature.application.service.DuplicatePartyApplicationException;
+import com.example.dotalink.feature.partypost.service.PartyPostNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +39,16 @@ public class ApiExceptionHandler {
                 .body(ApiErrorResponse.of("DUPLICATE_USERNAME", ex.getMessage()));
     }
 
-    @ExceptionHandler({UserNotFoundException.class, ProfileNotFoundException.class, DotaAccountNotFoundException.class})
+    @ExceptionHandler({UserNotFoundException.class, ProfileNotFoundException.class, DotaAccountNotFoundException.class, PartyPostNotFoundException.class})
     public ResponseEntity<ApiErrorResponse> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiErrorResponse.of("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicatePartyApplicationException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateApplication(DuplicatePartyApplicationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiErrorResponse.of("DUPLICATE_APPLICATION", ex.getMessage()));
     }
 
     @ExceptionHandler({AccessDeniedException.class, AccessDeniedBusinessException.class})

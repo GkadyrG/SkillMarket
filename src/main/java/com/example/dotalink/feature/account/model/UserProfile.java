@@ -1,4 +1,7 @@
-package com.example.dotalink.feature.account.model;
+package com.example.dotalink.feature.profile.model;
+
+import com.example.dotalink.feature.hero.model.Hero;
+import com.example.dotalink.feature.user.model.User;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

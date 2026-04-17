@@ -31,7 +31,7 @@
     </form>
 
     <div class="list-group shadow-sm mb-3">
-        <a class="list-group-item list-group-item-action" th:each="p : ${playersPage.content}" th:href="@{/players/{username}(username=${p.user.username})}">
+        <a class="list-group-item list-group-item-action" th:each="p : ${playersPage.content}" th:href="@{/profiles/{username}(username=${p.user.username})}">
             <div class="d-flex justify-content-between">
                 <strong th:text="${p.nickname}">Nickname</strong>
                 <span class="text-muted" th:text="${p.rank ?: '-'}">Rank</span>

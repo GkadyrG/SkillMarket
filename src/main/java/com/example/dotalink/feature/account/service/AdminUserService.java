@@ -1,23 +1,11 @@
-package com.example.dotalink.feature.account.service;
+package com.example.dotalink.feature.user.service;
 
-import com.example.dotalink.feature.account.model.User;
-import com.example.dotalink.feature.account.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.example.dotalink.feature.user.repository.UserRepository;
 
-@Service
-public class AdminUserService {
-
-    private final UserRepository userRepository;
+@Deprecated
+public class AdminUserService extends UserService {
 
     public AdminUserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    @Transactional(readOnly = true)
-    public Page<User> getUsersPage(Pageable pageable) {
-        return userRepository.findAllByOrderByCreatedAtDesc(pageable);
+        super(userRepository);
     }
 }
