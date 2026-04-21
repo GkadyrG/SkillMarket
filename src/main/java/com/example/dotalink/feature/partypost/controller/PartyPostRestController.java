@@ -1,5 +1,6 @@
 package com.example.dotalink.feature.partypost.controller;
 
+import com.example.dotalink.common.exception.AccessDeniedBusinessException;
 import com.example.dotalink.feature.application.dto.PartyApplicationDto;
 import com.example.dotalink.feature.application.service.PartyApplicationService;
 import com.example.dotalink.feature.partypost.dto.PartyPostCreateDto;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -78,7 +80,15 @@ public class PartyPostRestController {
     public Map<String, Object> applyToPost(@PathVariable Long id,
                                            @Valid @RequestBody PartyApplicationDto request,
                                            Authentication authentication) {
-        PartyApplicationDto response = partyApplicationService.apply(id, authentication.getName(), request);
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Authentication required");
+        }
+        PartyApplicationDto response;
+        try {
+            response = partyApplicationService.apply(id, authentication.getName(), request);
+        } catch (AccessDeniedBusinessException ex) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, ex.getMessage(), ex);
+        }
         return Map.of(
                 "success", true,
                 "applicationId", response.getId(),
