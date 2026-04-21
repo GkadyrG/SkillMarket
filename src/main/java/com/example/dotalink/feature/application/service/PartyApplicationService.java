@@ -14,6 +14,7 @@ import com.example.dotalink.feature.user.model.User;
 import com.example.dotalink.feature.user.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +63,12 @@ public class PartyApplicationService {
         application.setMessage(clean(request.getMessage()));
         application.setStatus(PartyApplicationStatus.NEW);
 
-        PartyApplication savedApplication = partyApplicationRepository.save(application);
+        PartyApplication savedApplication;
+        try {
+            savedApplication = partyApplicationRepository.save(application);
+        } catch (DataIntegrityViolationException ex) {
+            throw new DuplicatePartyApplicationException("You have already applied to this post");
+        }
         log.info("Created application: id={}, postId={}, applicant={}",
                 savedApplication.getId(), postId, username);
 
@@ -76,14 +82,21 @@ public class PartyApplicationService {
 
         validatePostOwner(post, username);
 
-        return partyApplicationRepository.findAllDetailedByPostIdOrderByCreatedAtDesc(postId).stream()
+        return partyApplicationRepository.findAllByPostIdOrderByCreatedAtDesc(postId).stream()
                 .map(this::toDto)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public boolean hasAppliedToPost(Long postId, String username) {
+        User applicant = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
+        return partyApplicationRepository.findByPostIdAndApplicantId(postId, applicant.getId()).isPresent();
+    }
+
     @Transactional
     public PartyApplicationDto updateStatus(Long applicationId, PartyApplicationStatus newStatus, String username) {
-        PartyApplication application = partyApplicationRepository.findDetailedById(applicationId)
+        PartyApplication application = partyApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found: " + applicationId));
 
         PartyPost post = application.getPost();

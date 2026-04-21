@@ -1,8 +1,11 @@
 package com.example.dotalink.feature.profile.controller;
 
+import com.example.dotalink.common.exception.AccessDeniedBusinessException;
 import com.example.dotalink.feature.profile.dto.UserProfileDto;
 import com.example.dotalink.feature.profile.model.DotaRank;
 import com.example.dotalink.feature.profile.service.ProfileService;
+import com.example.dotalink.feature.review.dto.ReviewCreateDto;
+import com.example.dotalink.feature.review.service.ReviewService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -18,9 +21,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final ReviewService reviewService;
 
-    public ProfileController(ProfileService profileService) {
+    public ProfileController(ProfileService profileService, ReviewService reviewService) {
         this.profileService = profileService;
+        this.reviewService = reviewService;
     }
 
     @GetMapping("/profile/me")
@@ -59,8 +64,39 @@ public class ProfileController {
     }
 
     @GetMapping("/profiles/{username}")
-    public String publicProfile(@PathVariable String username, Model model) {
+    public String publicProfile(@PathVariable String username, Authentication authentication, Model model) {
         model.addAttribute("profile", profileService.getPublicProfile(username));
+        model.addAttribute("reviews", reviewService.getReviewsForUser(username));
+        model.addAttribute("averageRating", reviewService.getAverageRatingForUser(username));
+        model.addAttribute("canReview", authentication != null && !authentication.getName().equals(username));
+        if (!model.containsAttribute("reviewForm")) {
+            model.addAttribute("reviewForm", new ReviewCreateDto());
+        }
         return "players/public-profile";
+    }
+
+    @PostMapping("/profiles/{username}/reviews")
+    public String createReview(@PathVariable String username,
+                               Authentication authentication,
+                               @Valid @ModelAttribute("reviewForm") ReviewCreateDto reviewForm,
+                               BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes) {
+        if (authentication == null) {
+            throw new AccessDeniedBusinessException("Authentication required");
+        }
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Review data is invalid");
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.reviewForm", bindingResult);
+            redirectAttributes.addFlashAttribute("reviewForm", reviewForm);
+            return "redirect:/profiles/" + username;
+        }
+
+        try {
+            reviewService.createReview(authentication.getName(), username, reviewForm);
+            redirectAttributes.addFlashAttribute("successMessage", "Review created");
+        } catch (AccessDeniedBusinessException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/profiles/" + username;
     }
 }

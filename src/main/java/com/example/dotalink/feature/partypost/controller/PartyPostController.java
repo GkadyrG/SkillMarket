@@ -1,12 +1,18 @@
 package com.example.dotalink.feature.partypost.controller;
 
+import com.example.dotalink.common.exception.AccessDeniedBusinessException;
 import com.example.dotalink.feature.application.dto.PartyApplicationDto;
+import com.example.dotalink.feature.application.model.PartyApplicationStatus;
+import com.example.dotalink.feature.application.service.DuplicatePartyApplicationException;
 import com.example.dotalink.feature.application.service.PartyApplicationService;
 import com.example.dotalink.feature.partypost.dto.PartyPostCreateDto;
+import com.example.dotalink.feature.partypost.dto.PartyPostDto;
 import com.example.dotalink.feature.partypost.dto.PartyPostFilterDto;
 import com.example.dotalink.feature.partypost.dto.PartyPostUpdateDto;
 import com.example.dotalink.feature.partypost.service.PartyPostService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -22,6 +28,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class PartyPostController {
+
+    private static final Logger log = LoggerFactory.getLogger(PartyPostController.class);
 
     private final PartyPostService partyPostService;
     private final PartyApplicationService partyApplicationService;
@@ -43,12 +51,48 @@ public class PartyPostController {
     }
 
     @GetMapping("/posts/{id}")
-    public String showPost(@PathVariable Long id, Model model) {
-        model.addAttribute("post", partyPostService.getPost(id));
-        model.addAttribute("applications", partyApplicationService.getApplicationsForPost(id));
+    public String showPost(@PathVariable Long id, Authentication authentication, Model model) {
+        PartyPostDto post = partyPostService.getPost(id);
+        model.addAttribute("post", post);
+
         if (!model.containsAttribute("applicationForm")) {
             model.addAttribute("applicationForm", new PartyApplicationDto());
         }
+
+        boolean isOwnPost = authentication != null
+                && post.getAuthorUsername() != null
+                && post.getAuthorUsername().equals(authentication.getName());
+        boolean isPostOpen = "OPEN".equalsIgnoreCase(post.getStatus());
+        boolean alreadyApplied = false;
+
+        if (authentication != null && !isOwnPost) {
+            alreadyApplied = partyApplicationService.hasAppliedToPost(id, authentication.getName());
+        }
+
+        boolean canApply = authentication != null && !isOwnPost && isPostOpen && !alreadyApplied;
+        model.addAttribute("isOwnPost", isOwnPost);
+        model.addAttribute("isPostOpen", isPostOpen);
+        model.addAttribute("alreadyApplied", alreadyApplied);
+        model.addAttribute("canApply", canApply);
+
+        if (isOwnPost) {
+            try {
+                model.addAttribute("applications",
+                        partyApplicationService.getApplicationsForPost(id, authentication.getName()));
+                model.addAttribute("canManageApplications", true);
+            } catch (Exception ex) {
+                log.warn("Failed to load applications for own post: postId={}, username={}",
+                        id, authentication.getName(), ex);
+                model.addAttribute("applications", java.util.List.of());
+                model.addAttribute("canManageApplications", false);
+            }
+            model.addAttribute("ownPostApplyMessage",
+                    "Вы автор этого объявления. Откликаться на собственный запрос нельзя.");
+        } else {
+            model.addAttribute("applications", java.util.List.of());
+            model.addAttribute("canManageApplications", false);
+        }
+
         return "party/view";
     }
 
@@ -110,5 +154,62 @@ public class PartyPostController {
         partyPostService.deletePost(id, authentication.getName());
         redirectAttributes.addFlashAttribute("successMessage", "Party post deleted");
         return "redirect:/posts";
+    }
+
+    @PostMapping("/posts/{id}/apply")
+    public String applyToPost(@PathVariable Long id,
+                              Authentication authentication,
+                              @Valid @ModelAttribute("applicationForm") PartyApplicationDto applicationForm,
+                              BindingResult bindingResult,
+                              RedirectAttributes redirectAttributes) {
+        if (authentication == null) {
+            throw new AccessDeniedBusinessException("Authentication required");
+        }
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Некорректные данные заявки.");
+            return "redirect:/posts/" + id;
+        }
+
+        try {
+            partyApplicationService.apply(id, authentication.getName(), applicationForm);
+            redirectAttributes.addFlashAttribute("successMessage", "Заявка отправлена.");
+        } catch (DuplicatePartyApplicationException | AccessDeniedBusinessException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+
+        return "redirect:/posts/" + id;
+    }
+
+    @PostMapping("/applications/{id}/accept")
+    public String acceptApplication(@PathVariable Long id,
+                                    Authentication authentication,
+                                    RedirectAttributes redirectAttributes) {
+        if (authentication == null) {
+            throw new AccessDeniedBusinessException("Authentication required");
+        }
+        PartyApplicationDto updated = partyApplicationService.updateStatus(
+                id,
+                PartyApplicationStatus.ACCEPTED,
+                authentication.getName()
+        );
+        redirectAttributes.addFlashAttribute("successMessage", "Application accepted");
+        return "redirect:/posts/" + updated.getPostId();
+    }
+
+    @PostMapping("/applications/{id}/reject")
+    public String rejectApplication(@PathVariable Long id,
+                                    Authentication authentication,
+                                    RedirectAttributes redirectAttributes) {
+        if (authentication == null) {
+            throw new AccessDeniedBusinessException("Authentication required");
+        }
+        PartyApplicationDto updated = partyApplicationService.updateStatus(
+                id,
+                PartyApplicationStatus.REJECTED,
+                authentication.getName()
+        );
+        redirectAttributes.addFlashAttribute("successMessage", "Application rejected");
+        return "redirect:/posts/" + updated.getPostId();
     }
 }
