@@ -22,7 +22,12 @@
             <p class="mb-1"><strong>Region:</strong> <span th:text="${profile.region ?: '-'}"></span></p>
             <p class="mb-1"><strong>Play time:</strong> <span th:text="${profile.playTime ?: '-'}"></span></p>
             <p class="mb-1"><strong>Preferred roles:</strong> <span th:text="${profile.preferredRolesText ?: '-'}"></span></p>
-            <p class="mb-0" th:text="${profile.about ?: 'No description'}"></p>
+            <p class="mb-2" th:text="${profile.about ?: 'No description'}"></p>
+            <a class="btn btn-outline-primary btn-sm"
+               th:if="${profile.username != null}"
+               th:href="@{/profiles/{username}/stats(username=${profile.username})}">
+                View stats
+            </a>
         </div>
     </div>
 

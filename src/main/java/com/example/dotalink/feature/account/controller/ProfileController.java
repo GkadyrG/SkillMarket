@@ -4,6 +4,7 @@ import com.example.dotalink.common.exception.AccessDeniedBusinessException;
 import com.example.dotalink.feature.profile.dto.UserProfileDto;
 import com.example.dotalink.feature.profile.model.DotaRank;
 import com.example.dotalink.feature.profile.service.ProfileService;
+import com.example.dotalink.feature.profile.service.UserStatsService;
 import com.example.dotalink.feature.review.dto.ReviewCreateDto;
 import com.example.dotalink.feature.review.service.ReviewService;
 import jakarta.validation.Valid;
@@ -22,10 +23,14 @@ public class ProfileController {
 
     private final ProfileService profileService;
     private final ReviewService reviewService;
+    private final UserStatsService userStatsService;
 
-    public ProfileController(ProfileService profileService, ReviewService reviewService) {
+    public ProfileController(ProfileService profileService,
+                             ReviewService reviewService,
+                             UserStatsService userStatsService) {
         this.profileService = profileService;
         this.reviewService = reviewService;
+        this.userStatsService = userStatsService;
     }
 
     @GetMapping("/profile/me")
@@ -98,5 +103,11 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/profiles/" + username;
+    }
+
+    @GetMapping("/profiles/{username}/stats")
+    public String userStats(@PathVariable String username, Model model) {
+        model.addAttribute("stats", userStatsService.getStatsByUsername(username));
+        return "profile/stats";
     }
 }
