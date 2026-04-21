@@ -12,7 +12,10 @@
 <main class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">User stats</h1>
-        <a class="btn btn-outline-secondary" th:href="@{/profiles/{username}(username=${stats.username})}">Back to profile</a>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-primary" th:href="@{/profiles/stats/review-leaders}">Review analytics</a>
+            <a class="btn btn-outline-secondary" th:href="@{/profiles/{username}(username=${stats.username})}">Back to profile</a>
+        </div>
     </div>
 
     <div class="card shadow-sm">
