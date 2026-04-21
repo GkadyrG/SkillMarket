@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -109,5 +110,12 @@ public class ProfileController {
     public String userStats(@PathVariable String username, Model model) {
         model.addAttribute("stats", userStatsService.getStatsByUsername(username));
         return "profile/stats";
+    }
+
+    @GetMapping("/profiles/stats/review-leaders")
+    public String reviewLeaders(@RequestParam(defaultValue = "1") long minReviews, Model model) {
+        model.addAttribute("minReviews", Math.max(minReviews, 1));
+        model.addAttribute("leaders", userStatsService.getUsersAbovePlatformAverage(Math.max(minReviews, 1)));
+        return "profile/review-analytics";
     }
 }

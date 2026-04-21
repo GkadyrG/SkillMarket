@@ -2,12 +2,15 @@ package com.example.dotalink.feature.profile.service;
 
 import com.example.dotalink.common.exception.ProfileNotFoundException;
 import com.example.dotalink.feature.dotaaccount.repository.DotaAccountRepository;
+import com.example.dotalink.feature.profile.dto.ReviewAnalyticsRowDto;
 import com.example.dotalink.feature.profile.dto.UserStatsDto;
 import com.example.dotalink.feature.profile.model.UserProfile;
 import com.example.dotalink.feature.profile.repository.UserProfileRepository;
 import com.example.dotalink.feature.review.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class UserStatsService {
@@ -48,5 +51,19 @@ public class UserStatsService {
         }
 
         return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewAnalyticsRowDto> getUsersAbovePlatformAverage(long minReviews) {
+        return reviewRepository.findUsersAbovePlatformAverage(minReviews).stream()
+                .map(p -> {
+                    ReviewAnalyticsRowDto dto = new ReviewAnalyticsRowDto();
+                    dto.setUsername(p.getUsername());
+                    dto.setNickname(p.getNickname());
+                    dto.setAverageRating(p.getAverageRating() == null ? 0.0 : p.getAverageRating());
+                    dto.setReviewsCount(p.getReviewsCount() == null ? 0L : p.getReviewsCount());
+                    return dto;
+                })
+                .toList();
     }
 }
