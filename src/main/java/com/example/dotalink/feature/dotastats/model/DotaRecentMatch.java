@@ -8,14 +8,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "dota_recent_matches", indexes = {
-        @Index(name = "idx_dota_recent_matches_account_id_start_time", columnList = "account_id,start_time"),
-        @Index(name = "idx_dota_recent_matches_match_id", columnList = "match_id", unique = true)
+        @Index(name = "idx_dota_recent_matches_account_id_start_time", columnList = "account_id,start_time")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "uq_dota_recent_matches_account_match", columnNames = {"account_id", "match_id"})
 })
 public class DotaRecentMatch {
 
@@ -26,7 +28,7 @@ public class DotaRecentMatch {
     @Column(name = "account_id", nullable = false)
     private Long accountId;
 
-    @Column(name = "match_id", nullable = false, unique = true)
+    @Column(name = "match_id", nullable = false)
     private Long matchId;
 
     @Column(name = "hero_id", nullable = false)

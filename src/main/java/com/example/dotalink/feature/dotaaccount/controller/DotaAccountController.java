@@ -3,9 +3,12 @@ package com.example.dotalink.feature.dotaaccount.controller;
 import com.example.dotalink.common.exception.DotaAccountNotFoundException;
 import com.example.dotalink.common.exception.ExternalApiException;
 import com.example.dotalink.feature.dotaaccount.dto.DotaAccountForm;
+import com.example.dotalink.feature.dotaaccount.model.DotaAccount;
 import com.example.dotalink.feature.dotaaccount.service.DotaAccountService;
 import com.example.dotalink.feature.dotastats.service.DotaStatsService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class DotaAccountController {
+
+    private static final Logger log = LoggerFactory.getLogger(DotaAccountController.class);
 
     private final DotaAccountService dotaAccountService;
     private final DotaStatsService dotaStatsService;
@@ -31,12 +36,10 @@ public class DotaAccountController {
     public String dotaAccountPage(Authentication authentication, Model model) {
         var account = dotaAccountService.getForUser(authentication.getName());
         model.addAttribute("account", account.orElse(null));
-        dotaStatsService.syncHeroCatalogIfNeeded();
-        account.ifPresent(dotaAccount -> dotaStatsService.syncPlayerStatsIfMissing(dotaAccount.getAccountId()));
         model.addAttribute("accountRankDisplay", account
                 .map(dotaAccount -> dotaStatsService.formatRankTier(dotaAccount.getRankTier()))
                 .orElse("-"));
-        addStatsIfAvailable(authentication.getName(), model);
+        populateStatsSection(authentication.getName(), account.orElse(null), model);
 
         if (!model.containsAttribute("dotaAccountForm")) {
             DotaAccountForm form = new DotaAccountForm();
@@ -59,7 +62,9 @@ public class DotaAccountController {
             model.addAttribute("accountRankDisplay", dotaAccountService.getForUser(authentication.getName())
                     .map(dotaAccount -> dotaStatsService.formatRankTier(dotaAccount.getRankTier()))
                     .orElse("-"));
-            addStatsIfAvailable(authentication.getName(), model);
+            populateStatsSection(authentication.getName(),
+                    dotaAccountService.getForUser(authentication.getName()).orElse(null),
+                    model);
             return "profile/dota-link";
         }
 
@@ -70,7 +75,9 @@ public class DotaAccountController {
             model.addAttribute("accountRankDisplay", dotaAccountService.getForUser(authentication.getName())
                     .map(dotaAccount -> dotaStatsService.formatRankTier(dotaAccount.getRankTier()))
                     .orElse("-"));
-            addStatsIfAvailable(authentication.getName(), model);
+            populateStatsSection(authentication.getName(),
+                    dotaAccountService.getForUser(authentication.getName()).orElse(null),
+                    model);
             model.addAttribute("errorMessage", ex.getMessage());
             return "profile/dota-link";
         }
@@ -86,10 +93,30 @@ public class DotaAccountController {
         return "redirect:/profile/me";
     }
 
+    private void populateStatsSection(String username, DotaAccount account, Model model) {
+        if (account == null) {
+            model.addAttribute("playerStats", null);
+            return;
+        }
+
+        try {
+            dotaStatsService.syncHeroCatalogIfNeeded();
+            dotaStatsService.syncPlayerStatsIfMissing(account.getAccountId());
+        } catch (Exception ex) {
+            log.warn("Failed to sync Dota stats for username={}, accountId={}. Page will stay available.",
+                    username, account.getAccountId(), ex);
+            model.addAttribute("statsWarningMessage",
+                    "OpenDota stats are unavailable for this account right now. You can still change the Dota account ID.");
+        }
+
+        addStatsIfAvailable(username, model);
+    }
+
     private void addStatsIfAvailable(String username, Model model) {
         try {
             model.addAttribute("playerStats", dotaStatsService.getPlayerStatsByUsername(username));
-        } catch (DotaAccountNotFoundException ignored) {
+        } catch (Exception ex) {
+            log.warn("Failed to load Dota stats for username={}. Stats block will be hidden.", username, ex);
             model.addAttribute("playerStats", null);
         }
     }

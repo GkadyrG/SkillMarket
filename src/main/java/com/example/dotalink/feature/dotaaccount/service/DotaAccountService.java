@@ -1,6 +1,7 @@
 package com.example.dotalink.feature.dotaaccount.service;
 
 import com.example.dotalink.common.exception.DotaAccountNotFoundException;
+import com.example.dotalink.common.exception.ExternalApiException;
 import com.example.dotalink.common.exception.UserNotFoundException;
 import com.example.dotalink.feature.dotaaccount.dto.DotaAccountViewDto;
 import com.example.dotalink.feature.dotaaccount.model.DotaAccount;
@@ -74,7 +75,12 @@ public class DotaAccountService {
         user.setDotaAccount(account);
 
         DotaAccount saved = dotaAccountRepository.save(account);
-        dotaStatsService.syncPlayerStats(accountId);
+        try {
+            dotaStatsService.syncPlayerStats(accountId);
+        } catch (Exception ex) {
+            log.warn("Dota account linked without stats sync: username={}, accountId={}, reason={}",
+                    username, accountId, ex.getMessage());
+        }
         log.info("Dota account linked successfully: username={}, accountId={}, dotaAccountId={}",
                 username, accountId, saved.getId());
         return saved;

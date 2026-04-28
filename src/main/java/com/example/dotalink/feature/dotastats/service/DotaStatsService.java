@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.ToDoubleFunction;
@@ -89,11 +90,17 @@ public class DotaStatsService {
     @Transactional
     public void syncPlayerStats(Long accountId) {
         syncHeroCatalogIfNeeded();
-        List<OpenDotaRecentMatchResponse> recentMatches = openDotaClient.getRecentMatchesByAccountId(accountId);
-        List<OpenDotaPlayerHeroStatsResponse> heroStats = openDotaClient.getPlayerHeroesByAccountId(accountId);
+        List<OpenDotaRecentMatchResponse> recentMatches = deduplicateRecentMatches(
+                openDotaClient.getRecentMatchesByAccountId(accountId)
+        );
+        List<OpenDotaPlayerHeroStatsResponse> heroStats = deduplicateHeroStats(
+                openDotaClient.getPlayerHeroesByAccountId(accountId)
+        );
 
         dotaRecentMatchRepository.deleteByAccountId(accountId);
         dotaPlayerHeroStatsRepository.deleteByAccountId(accountId);
+        dotaRecentMatchRepository.flush();
+        dotaPlayerHeroStatsRepository.flush();
 
         dotaRecentMatchRepository.saveAll(recentMatches.stream()
                 .map(match -> toRecentMatchEntity(accountId, match))
@@ -229,6 +236,43 @@ public class DotaStatsService {
                 .mapToDouble(extractor)
                 .average()
                 .orElse(0.0));
+    }
+
+    private List<OpenDotaRecentMatchResponse> deduplicateRecentMatches(List<OpenDotaRecentMatchResponse> matches) {
+        return new java.util.ArrayList<>(matches.stream()
+                .filter(match -> match != null && match.matchId() != null)
+                .collect(Collectors.toMap(
+                        OpenDotaRecentMatchResponse::matchId,
+                        match -> match,
+                        (left, right) -> left,
+                        LinkedHashMap::new
+                ))
+                .values());
+    }
+
+    private List<OpenDotaPlayerHeroStatsResponse> deduplicateHeroStats(List<OpenDotaPlayerHeroStatsResponse> heroStats) {
+        return new java.util.ArrayList<>(heroStats.stream()
+                .filter(stat -> stat != null && stat.heroId() != null)
+                .collect(Collectors.toMap(
+                        OpenDotaPlayerHeroStatsResponse::heroId,
+                        stat -> stat,
+                        this::pickMoreCompleteHeroStat,
+                        LinkedHashMap::new
+                ))
+                .values());
+    }
+
+    private OpenDotaPlayerHeroStatsResponse pickMoreCompleteHeroStat(OpenDotaPlayerHeroStatsResponse left,
+                                                                     OpenDotaPlayerHeroStatsResponse right) {
+        long leftGames = left.games() == null ? 0L : left.games();
+        long rightGames = right.games() == null ? 0L : right.games();
+        if (rightGames > leftGames) {
+            return right;
+        }
+
+        long leftWins = left.win() == null ? 0L : left.win();
+        long rightWins = right.win() == null ? 0L : right.win();
+        return rightWins > leftWins ? right : left;
     }
 
     private double calculateMatchKda(DotaRecentMatch match) {
