@@ -14,6 +14,7 @@ import com.example.dotalink.feature.partypost.repository.PartyPostRepository;
 import com.example.dotalink.feature.profile.model.DotaRank;
 import com.example.dotalink.feature.profile.model.DotaRegion;
 import com.example.dotalink.feature.profile.model.DotaRolePreference;
+import com.example.dotalink.feature.user.model.Role;
 import com.example.dotalink.feature.user.model.User;
 import com.example.dotalink.feature.user.repository.UserRepository;
 import org.slf4j.Logger;
@@ -121,6 +122,13 @@ public class PartyPostService {
     }
 
     private void validateOwner(PartyPost post, String username) {
+        User actor = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
+
+        if (actor.getRole() == Role.ROLE_ADMIN) {
+            return;
+        }
+
         if (post.getAuthor() == null || !post.getAuthor().getUsername().equals(username)) {
             throw new AccessDeniedBusinessException("Only the author can change this post");
         }

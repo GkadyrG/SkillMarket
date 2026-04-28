@@ -31,7 +31,7 @@
                 <td th:text="${u.email}">email</td>
                 <td th:text="${u.role}">role</td>
                 <td th:text="${u.enabled}">true</td>
-                <td><a th:href="@{/players/{username}(username=${u.username})}" class="btn btn-sm btn-outline-primary">View</a></td>
+                <td><a th:href="@{/profiles/{username}(username=${u.username})}" class="btn btn-sm btn-outline-primary">View</a></td>
             </tr>
             </tbody>
         </table>

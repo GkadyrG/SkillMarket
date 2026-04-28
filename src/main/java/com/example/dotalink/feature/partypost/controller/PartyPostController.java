@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -66,6 +67,9 @@ public class PartyPostController {
         boolean isOwnPost = authentication != null
                 && post.getAuthorUsername() != null
                 && post.getAuthorUsername().equals(authentication.getName());
+        boolean isAdmin = authentication != null && authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch("ROLE_ADMIN"::equals);
         boolean isPostOpen = "OPEN".equalsIgnoreCase(post.getStatus());
         boolean alreadyApplied = false;
 
@@ -75,6 +79,7 @@ public class PartyPostController {
 
         boolean canApply = authentication != null && !isOwnPost && isPostOpen && !alreadyApplied;
         model.addAttribute("isOwnPost", isOwnPost);
+        model.addAttribute("canDeletePost", isOwnPost || isAdmin);
         model.addAttribute("isPostOpen", isPostOpen);
         model.addAttribute("alreadyApplied", alreadyApplied);
         model.addAttribute("canApply", canApply);

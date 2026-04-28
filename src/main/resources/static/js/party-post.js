@@ -1,15 +1,21 @@
 $(function () {
-    const button = $("#apply-button");
-    if (button.length === 0) {
+    const form = $("#apply-form");
+    if (form.length === 0) {
         return;
     }
 
-    button.on("click", function () {
+    form.on("submit", function (event) {
+        event.preventDefault();
+
         const csrfToken = $('meta[name="csrf-token"]').attr("content");
         const csrfHeader = $('meta[name="csrf-header"]').attr("content");
+        const button = $("#apply-button");
         const postId = button.data("post-id");
         const message = $("#apply-message").val();
         const output = $("#apply-result");
+
+        button.prop("disabled", true);
+        output.text("").removeClass("text-success text-danger");
 
         $.ajax({
             url: "/api/posts/" + postId + "/apply",
@@ -25,6 +31,8 @@ $(function () {
         }).fail(function (xhr) {
             const response = xhr.responseJSON || {};
             output.text(response.message || "Failed to send application").removeClass("text-success").addClass("text-danger");
+        }).always(function () {
+            button.prop("disabled", false);
         });
     });
 });
