@@ -2,6 +2,7 @@ package com.example.dotalink.common.advice;
 
 import com.example.dotalink.common.exception.AccessDeniedBusinessException;
 import com.example.dotalink.common.exception.DotaAccountNotFoundException;
+import com.example.dotalink.common.exception.ExternalApiException;
 import com.example.dotalink.common.exception.ProfileNotFoundException;
 import com.example.dotalink.common.exception.UserNotFoundException;
 import com.example.dotalink.feature.partypost.service.PartyPostNotFoundException;
@@ -27,6 +28,14 @@ public class GlobalExceptionHandler {
         log.warn("Not found: path={}, message={}", request.getRequestURI(), ex.getMessage());
         model.addAttribute("message", ex.getMessage());
         return "error/404";
+    }
+
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
+    @ExceptionHandler(ExternalApiException.class)
+    public String handleExternalApi(ExternalApiException ex, HttpServletRequest request, Model model) {
+        log.warn("External API error: path={}, message={}", request.getRequestURI(), ex.getMessage());
+        model.addAttribute("message", ex.getMessage());
+        return "error/500";
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)

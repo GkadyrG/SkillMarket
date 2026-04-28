@@ -1,6 +1,7 @@
 package com.example.dotalink.feature.partypost.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class PartyPostCreateDto {
@@ -12,13 +13,22 @@ public class PartyPostCreateDto {
     @Size(max = 2000, message = "Description is too long")
     private String description;
 
-    @Size(max = 40, message = "Rank is too long")
+    @Pattern(
+            regexp = "^$|^(Herald|Guardian|Crusader|Archon|Legend|Ancient|Divine|Immortal)$",
+            message = "Rank must be a valid Dota rank"
+    )
     private String requiredRank;
 
-    @Size(max = 40, message = "Role is too long")
+    @Pattern(
+            regexp = "^$|^(Carry|Mid|Offlane|Soft Support|Hard Support)$",
+            message = "Role must be a valid Dota role"
+    )
     private String roleNeeded;
 
-    @Size(max = 40, message = "Region is too long")
+    @Pattern(
+            regexp = "^$|^(EU West|EU East|CIS|North America|South America|Southeast Asia|China)$",
+            message = "Region must be a valid region"
+    )
     private String region;
 
     public String getTitle() {

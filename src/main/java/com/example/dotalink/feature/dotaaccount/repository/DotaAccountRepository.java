@@ -9,4 +9,6 @@ public interface DotaAccountRepository extends JpaRepository<DotaAccount, Long> 
     Optional<DotaAccount> findByUserId(Long userId);
 
     Optional<DotaAccount> findByUserUsername(String username);
+
+    Optional<DotaAccount> findByAccountId(Long accountId);
 }

@@ -38,7 +38,7 @@ public class UserStatsService {
         dto.setFavoriteHeroes(profile.getFavoriteHeroes().stream().map(h -> h.getName()).sorted().toList());
 
         var account = dotaAccountRepository.findByUserUsername(username).orElse(null);
-        dto.setMmr(account != null ? account.getMmr() : null);
+        dto.setRankTier(account != null ? account.getRankTier() : null);
 
         Long targetUserId = profile.getUser() != null ? profile.getUser().getId() : null;
         if (targetUserId != null) {

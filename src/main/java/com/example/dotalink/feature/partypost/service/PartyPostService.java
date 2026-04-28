@@ -11,6 +11,9 @@ import com.example.dotalink.feature.partypost.model.PartyPost;
 import com.example.dotalink.feature.partypost.model.PartyPostStatus;
 import com.example.dotalink.feature.partypost.repository.PartyPostCriteriaRepository;
 import com.example.dotalink.feature.partypost.repository.PartyPostRepository;
+import com.example.dotalink.feature.profile.model.DotaRank;
+import com.example.dotalink.feature.profile.model.DotaRegion;
+import com.example.dotalink.feature.profile.model.DotaRolePreference;
 import com.example.dotalink.feature.user.model.User;
 import com.example.dotalink.feature.user.repository.UserRepository;
 import org.slf4j.Logger;
@@ -126,9 +129,9 @@ public class PartyPostService {
     private void applyFields(PartyPost post, PartyPostCreateDto request) {
         post.setTitle(request.getTitle().trim());
         post.setDescription(clean(request.getDescription()));
-        post.setRequiredRank(clean(request.getRequiredRank()));
-        post.setRoleNeeded(clean(request.getRoleNeeded()));
-        post.setRegion(clean(request.getRegion()));
+        post.setRequiredRank(DotaRank.normalizeOrNull(request.getRequiredRank()));
+        post.setRoleNeeded(normalizeRoleOrNull(request.getRoleNeeded()));
+        post.setRegion(DotaRegion.normalizeOrNull(request.getRegion()));
     }
 
     private PartyPostDto toDto(PartyPost post) {
@@ -159,5 +162,16 @@ public class PartyPostService {
             return "";
         }
         return value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeRoleOrNull(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        String normalized = value.trim();
+        return DotaRolePreference.valuesList().stream()
+                .filter(role -> role.equalsIgnoreCase(normalized))
+                .findFirst()
+                .orElse(null);
     }
 }

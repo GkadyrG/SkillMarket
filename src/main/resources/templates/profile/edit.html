@@ -33,20 +33,30 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" for="region">Region</label>
-                        <input id="region" class="form-control" th:field="*{region}">
+                        <select id="region" class="form-select" th:field="*{region}">
+                            <option value="">Not set</option>
+                            <option th:each="regionOption : ${regionOptions}" th:value="${regionOption}" th:text="${regionOption}"></option>
+                        </select>
                         <div class="text-danger small" th:errors="*{region}"></div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label" for="playTime">Play time</label>
-                        <input id="playTime" class="form-control" th:field="*{playTime}">
-                        <div class="text-danger small" th:errors="*{playTime}"></div>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" for="preferredRolesText">Preferred roles</label>
-                    <input id="preferredRolesText" class="form-control" th:field="*{preferredRolesText}">
-                    <div class="text-danger small" th:errors="*{preferredRolesText}"></div>
+                    <label class="form-label">Preferred roles</label>
+                    <div class="row g-2">
+                        <div class="col-sm-6 col-lg-4" th:each="roleOption : ${roleOptions}">
+                            <div class="form-check border rounded px-3 py-2">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       th:field="*{preferredRoles}"
+                                       th:value="${roleOption}"
+                                       th:id="${'role-' + #strings.replace(roleOption, ' ', '-')}">
+                                <label class="form-check-label"
+                                       th:for="${'role-' + #strings.replace(roleOption, ' ', '-')}"
+                                       th:text="${roleOption}">Role</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-3">

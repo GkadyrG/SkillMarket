@@ -34,7 +34,8 @@ logging:
     com.example.dotalink: DEBUG
 
 integration:
-  steam:
-    enabled: ${STEAM_API_ENABLED:false}
-    api-key: ${STEAM_API_KEY:}
-    base-url: ${STEAM_API_BASE_URL:https://api.steampowered.com}
+  opendota:
+    base-url: ${OPENDOTA_API_BASE_URL:https://api.opendota.com}
+    connect-timeout-seconds: ${OPENDOTA_CONNECT_TIMEOUT_SECONDS:10}
+    read-timeout-seconds: ${OPENDOTA_READ_TIMEOUT_SECONDS:30}
+    call-timeout-seconds: ${OPENDOTA_CALL_TIMEOUT_SECONDS:40}

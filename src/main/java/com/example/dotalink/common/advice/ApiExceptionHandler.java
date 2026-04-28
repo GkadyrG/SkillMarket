@@ -5,6 +5,7 @@ import com.example.dotalink.common.exception.AccessDeniedBusinessException;
 import com.example.dotalink.common.exception.DotaAccountNotFoundException;
 import com.example.dotalink.common.exception.DuplicateEmailException;
 import com.example.dotalink.common.exception.DuplicateUsernameException;
+import com.example.dotalink.common.exception.ExternalApiException;
 import com.example.dotalink.common.exception.ProfileNotFoundException;
 import com.example.dotalink.common.exception.UserNotFoundException;
 import com.example.dotalink.feature.application.service.DuplicatePartyApplicationException;
@@ -43,6 +44,12 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiErrorResponse.of("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ExternalApiException.class)
+    public ResponseEntity<ApiErrorResponse> handleExternalApi(ExternalApiException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(ApiErrorResponse.of("EXTERNAL_API_ERROR", ex.getMessage()));
     }
 
     @ExceptionHandler(DuplicatePartyApplicationException.class)

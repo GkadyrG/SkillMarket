@@ -19,7 +19,6 @@
             <h2 class="h5" th:text="${profile.nickname}">Nickname</h2>
             <p class="mb-1"><strong>Rank:</strong> <span th:text="${profile.rank ?: '-'}"></span></p>
             <p class="mb-1"><strong>Region:</strong> <span th:text="${profile.region ?: '-'}"></span></p>
-            <p class="mb-1"><strong>Play time:</strong> <span th:text="${profile.playTime ?: '-'}"></span></p>
             <p class="mb-2"><strong>Preferred roles:</strong> <span th:text="${profile.preferredRolesText ?: '-'}"></span></p>
             <p class="mb-3" th:text="${profile.about ?: 'No description yet'}"></p>
 
@@ -28,8 +27,18 @@
                 <span th:if="${#lists.isEmpty(profile.favoriteHeroNames)}" class="text-muted">No favorite heroes selected</span>
             </div>
 
+            <div class="border rounded p-3 mb-3 bg-light-subtle">
+                <h3 class="h6 mb-2">Dota account</h3>
+                <div th:if="${dotaAccount != null}">
+                    <p class="mb-1"><strong>Account ID:</strong> <span th:text="${dotaAccount.accountId}"></span></p>
+                    <p class="mb-1"><strong>Persona:</strong> <span th:text="${dotaAccount.personaName ?: '-'}"></span></p>
+                    <p class="mb-1"><strong>Rank tier:</strong> <span th:text="${dotaAccount.rankTier ?: '-'}"></span></p>
+                </div>
+                <p th:if="${dotaAccount == null}" class="mb-0 text-muted">No linked Dota account yet.</p>
+            </div>
+
             <a class="btn btn-primary" th:href="@{/profile/edit}">Edit profile</a>
-            <a class="btn btn-outline-dark" th:href="@{/account/dota}">Dota account</a>
+            <a class="btn btn-outline-dark" th:href="@{/profile/dota/link}">Link Dota account</a>
         </div>
     </div>
 </main>

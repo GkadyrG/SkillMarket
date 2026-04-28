@@ -1,8 +1,11 @@
 package com.example.dotalink.feature.profile.controller;
 
 import com.example.dotalink.common.exception.AccessDeniedBusinessException;
+import com.example.dotalink.feature.dotaaccount.service.DotaAccountService;
 import com.example.dotalink.feature.profile.dto.UserProfileDto;
 import com.example.dotalink.feature.profile.model.DotaRank;
+import com.example.dotalink.feature.profile.model.DotaRegion;
+import com.example.dotalink.feature.profile.model.DotaRolePreference;
 import com.example.dotalink.feature.profile.service.ProfileService;
 import com.example.dotalink.feature.profile.service.UserStatsService;
 import com.example.dotalink.feature.review.dto.ReviewCreateDto;
@@ -25,18 +28,22 @@ public class ProfileController {
     private final ProfileService profileService;
     private final ReviewService reviewService;
     private final UserStatsService userStatsService;
+    private final DotaAccountService dotaAccountService;
 
     public ProfileController(ProfileService profileService,
                              ReviewService reviewService,
-                             UserStatsService userStatsService) {
+                             UserStatsService userStatsService,
+                             DotaAccountService dotaAccountService) {
         this.profileService = profileService;
         this.reviewService = reviewService;
         this.userStatsService = userStatsService;
+        this.dotaAccountService = dotaAccountService;
     }
 
     @GetMapping("/profile/me")
     public String myProfile(Authentication authentication, Model model) {
         model.addAttribute("profile", profileService.getMyProfile(authentication.getName()));
+        model.addAttribute("dotaAccount", dotaAccountService.getForUser(authentication.getName()).orElse(null));
         return "profile/me";
     }
 
@@ -46,6 +53,8 @@ public class ProfileController {
             model.addAttribute("profileForm", profileService.getEditDto(authentication.getName()));
         }
         model.addAttribute("rankOptions", DotaRank.valuesList());
+        model.addAttribute("regionOptions", DotaRegion.valuesList());
+        model.addAttribute("roleOptions", DotaRolePreference.valuesList());
         model.addAttribute("heroes", profileService.getAllHeroes());
         return "profile/edit";
     }
@@ -60,6 +69,8 @@ public class ProfileController {
     ) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("rankOptions", DotaRank.valuesList());
+            model.addAttribute("regionOptions", DotaRegion.valuesList());
+            model.addAttribute("roleOptions", DotaRolePreference.valuesList());
             model.addAttribute("heroes", profileService.getAllHeroes());
             return "profile/edit";
         }
