@@ -1,44 +1,106 @@
 # DotaLink
 
-Учебный командный проект на Spring Boot (MVC) для игроков Dota 2.
+DotaLink - учебный командный веб-проект на Java и Spring Boot для поиска игроков Dota 2, ведения игровых профилей и взаимодействия внутри сообщества.
 
-## Что реализовано (модуль участника №1)
+## О проекте
 
-- Регистрация, логин, логаут
-- Spring Security + роли `ROLE_USER` / `ROLE_ADMIN`
-- Профиль пользователя (приватный и публичный)
-- Редактирование профиля с валидацией и PRG
-- Привязка Dota аккаунта (полный CRUD)
-- REST API для Dota аккаунта
-- AJAX: проверка username/email, CRUD Dota аккаунта
-- Поиск игроков + пагинация
-- Админ-страница пользователей + пагинация
-- Кастомные страницы ошибок `403/404/500` + JSON ошибки для API
+Приложение позволяет:
 
-## Стек
+- регистрироваться и входить в систему;
+- редактировать профиль игрока;
+- привязывать Dota/Steam-аккаунт;
+- искать игроков по параметрам профиля;
+- публиковать party posts и откликаться на них;
+- оставлять отзывы и просматривать статистику.
+
+## Основной функционал
+
+### Аутентификация и доступ
+
+- регистрация пользователей;
+- вход и выход из системы;
+- роли `ROLE_USER` и `ROLE_ADMIN`;
+- защита маршрутов через Spring Security.
+
+### Профили игроков
+
+- просмотр собственного профиля;
+- редактирование профиля;
+- публичные страницы пользователей;
+- выбор любимых героев;
+- ранги, регионы и предпочтения по ролям.
+
+### Dota account
+
+- привязка Steam/Dota-аккаунта;
+- обновление и удаление привязки;
+- REST API для работы с Dota account;
+- поддержка синхронизации с Steam Web API.
+
+### Поиск и взаимодействие
+
+- поиск игроков с фильтрацией и пагинацией;
+- список пользователей для администратора;
+- party posts и заявки;
+- отзывы о пользователях;
+- статистика и аналитика профиля.
+
+### Обработка ошибок
+
+- пользовательские страницы ошибок `403`, `404`, `500`;
+- JSON-ответы об ошибках для API.
+
+## Технологии
 
 - Java 17
-- Spring Boot 3, Spring MVC, Spring Security
-- Spring Data JPA, Hibernate
-- PostgreSQL, Flyway
-- Thymeleaf, Bootstrap 5, jQuery
+- Spring Boot 3
+- Spring MVC
+- Spring Security
+- Spring Data JPA
+- Hibernate
+- PostgreSQL
+- Flyway
+- Thymeleaf
+- Bootstrap 5
+- jQuery
 - Maven Wrapper
 - Docker, Docker Compose
 
-## Сущности
+## Архитектура
+
+Проект построен по классической многослойной схеме:
+
+- `controller` - принимает HTTP-запросы и возвращает HTML или JSON;
+- `service` - содержит бизнес-логику;
+- `repository` - работает с базой данных;
+- `model` - описывает сущности предметной области;
+- `dto` - используется для форм, API и передачи данных между слоями.
+
+Дополнительные модули:
+
+- `security` - аутентификация, авторизация, роли;
+- `common` - общие контроллеры, ошибки и исключения;
+- `integration/dota` - интеграция со Steam API.
+
+## Предметная модель
+
+Основные сущности проекта:
 
 - `User`
 - `UserProfile`
 - `DotaAccount`
 - `Hero`
-- `PartyPost` (каркас)
-- `PartyApplication` (каркас)
+- `PartyPost`
+- `PartyApplication`
+- `Review`
 
-Связи:
+Основные связи:
 
-- `User` -> `UserProfile` (OneToOne)
-- `User` -> `DotaAccount` (OneToOne)
-- `UserProfile` <-> `Hero` (ManyToMany)
+- `User` -> `UserProfile` (`OneToOne`)
+- `User` -> `DotaAccount` (`OneToOne`)
+- `UserProfile` <-> `Hero` (`ManyToMany`)
+- `User` -> `PartyPost` (`OneToMany`)
+- `User` -> `PartyApplication` (`OneToMany`)
 
 ## Ранги Dota
 
@@ -53,14 +115,14 @@
 - Divine
 - Immortal
 
-На форме профиля и в фильтре игроков — выпадающий список.
+Ранги используются в профиле игрока, фильтрах поиска и party-функциональности.
 
-## Интеграция Steam API
+## Интеграция со Steam API
 
-Есть 2 режима:
+Поддерживаются два режима работы:
 
-- по умолчанию: `stub` (без реального запроса)
-- с ключом: реальный запрос к Steam Web API (`GetPlayerSummaries`)
+- `stub` - без реального внешнего запроса;
+- `steam api` - через `GetPlayerSummaries`.
 
 Переменные окружения:
 
@@ -68,32 +130,40 @@
 - `STEAM_API_KEY=...`
 - `STEAM_API_BASE_URL=https://api.steampowered.com`
 
-На странице `/account/dota` есть индикатор: `Steam sync: enabled/disabled`.
+## Структура ресурсов
 
-## Быстрый запуск через Docker
+- `src/main/java` - Java-код приложения
+- `src/main/resources/templates` - HTML-шаблоны Thymeleaf
+- `src/main/resources/static` - CSS и JavaScript
+- `src/main/resources/db/migration` - SQL-миграции Flyway
+- `src/test` - тесты
+
+## Запуск проекта
+
+### Через Docker
 
 ```bash
 docker compose up --build
 ```
 
-Открыть:
+Приложение будет доступно по адресу:
 
 - `http://localhost:8080`
 
-### Чистый перезапуск БД
+### Перезапуск с очисткой БД
 
 ```bash
 docker compose down -v
 docker compose up --build
 ```
 
-## Локальный запуск (без Docker)
+### Локальный запуск
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-Windows:
+Для Windows:
 
 ```bat
 mvnw.cmd spring-boot:run
@@ -101,36 +171,77 @@ mvnw.cmd spring-boot:run
 
 ## Тестовые пользователи
 
-- `admin / admin123` (админ)
-- `demo / demo123` (обычный пользователь)
+- `admin / admin123` - администратор
+- `demo / demo123` - обычный пользователь
 
-## Основные URL
+## Основные маршруты
+
+### Публичные и auth
 
 - `/`
-- `/register`
 - `/login`
+- `/register`
+
+### Профиль и игроки
+
 - `/profile/me`
 - `/profile/edit`
-- `/account/dota`
 - `/players`
-- `/players/{username}`
-- `/admin/users`
+- `/profiles/{username}`
+
+### Dota account
+
+- `/account/dota`
 - `/api/account/dota`
 
-## REST API (DotaAccount)
+### Администрирование
+
+- `/admin/users`
+
+### Party и взаимодействие
+
+- `/party`
+- `/posts`
+- `/posts/{id}`
+
+## REST API
+
+### Dota account API
 
 - `GET /api/account/dota`
 - `POST /api/account/dota`
 - `PUT /api/account/dota`
 - `DELETE /api/account/dota`
 
-## Быстрая проверка
+### Party post API
 
-1. Запусти `docker compose up --build`
-2. Открой `/register`, создай пользователя
-3. Войди через `/login`
-4. Проверь `/profile/me` и `/profile/edit`
-5. Проверь CRUD на `/account/dota` (форма + AJAX)
-6. Под `demo` открой `/admin/users` (должен быть 403)
-7. Под `admin` открой `/admin/users` (должна открыться таблица)
-8. Проверь `/players` (фильтры и пагинация)
+- `GET /api/posts`
+- `POST /api/posts`
+- `PUT /api/posts/{id}`
+- `DELETE /api/posts/{id}`
+- `POST /api/posts/{id}/apply`
+
+## База данных и миграции
+
+Схема базы создается и поддерживается через Flyway.
+
+Основные миграции:
+
+- `V1__init_schema.sql` - начальная схема проекта;
+- `V2__normalize_ranks.sql` - нормализация рангов;
+- `V3__fix_party_applications_unique_constraint.sql` - доработка ограничений заявок;
+- `V4__create_reviews.sql` - добавление отзывов.
+
+## Интерфейс
+
+Серверная часть строится на MVC с HTML-шаблонами Thymeleaf.
+
+В проекте используются страницы для:
+
+- входа и регистрации;
+- просмотра и редактирования профиля;
+- списка игроков;
+- работы с Dota account;
+- административной панели;
+- просмотра party posts;
+- отображения ошибок.
