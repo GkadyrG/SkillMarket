@@ -9,6 +9,9 @@ import com.example.dotalink.feature.partypost.dto.PartyPostCreateDto;
 import com.example.dotalink.feature.partypost.dto.PartyPostDto;
 import com.example.dotalink.feature.partypost.dto.PartyPostFilterDto;
 import com.example.dotalink.feature.partypost.dto.PartyPostUpdateDto;
+import com.example.dotalink.feature.profile.model.DotaRank;
+import com.example.dotalink.feature.profile.model.DotaRegion;
+import com.example.dotalink.feature.profile.model.DotaRolePreference;
 import com.example.dotalink.feature.partypost.service.PartyPostService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -47,6 +50,7 @@ public class PartyPostController {
                             Model model) {
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 50));
         model.addAttribute("postsPage", partyPostService.getPostsPage(filter, pageable));
+        addPartyOptions(model);
         return "party/list";
     }
 
@@ -102,6 +106,7 @@ public class PartyPostController {
             model.addAttribute("postForm", new PartyPostCreateDto());
         }
         model.addAttribute("editMode", false);
+        addPartyOptions(model);
         return "party/form";
     }
 
@@ -113,6 +118,7 @@ public class PartyPostController {
                              RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("editMode", false);
+            addPartyOptions(model);
             return "party/form";
         }
         Long id = partyPostService.createPost(authentication.getName(), postForm);
@@ -127,6 +133,7 @@ public class PartyPostController {
         }
         model.addAttribute("editMode", true);
         model.addAttribute("postId", id);
+        addPartyOptions(model);
         return "party/form";
     }
 
@@ -140,6 +147,7 @@ public class PartyPostController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("editMode", true);
             model.addAttribute("postId", id);
+            addPartyOptions(model);
             return "party/form";
         }
         partyPostService.updatePost(id, authentication.getName(), postForm);
@@ -211,6 +219,12 @@ public class PartyPostController {
         );
         redirectAttributes.addFlashAttribute("successMessage", "Application rejected");
         return "redirect:/posts/" + updated.getPostId();
+    }
+
+    private void addPartyOptions(Model model) {
+        model.addAttribute("rankOptions", DotaRank.valuesList());
+        model.addAttribute("regionOptions", DotaRegion.valuesList());
+        model.addAttribute("roleOptions", DotaRolePreference.valuesList());
     }
 }
 

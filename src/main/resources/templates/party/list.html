@@ -19,15 +19,24 @@
         <div class="row g-3">
             <div class="col-md-3">
                 <label class="form-label" for="rank">Rank</label>
-                <input id="rank" class="form-control" th:field="*{rank}">
+                <select id="rank" class="form-select" th:field="*{rank}">
+                    <option value="">Any rank</option>
+                    <option th:each="rankOption : ${rankOptions}" th:value="${rankOption}" th:text="${rankOption}"></option>
+                </select>
             </div>
             <div class="col-md-3">
                 <label class="form-label" for="role">Role</label>
-                <input id="role" class="form-control" th:field="*{role}">
+                <select id="role" class="form-select" th:field="*{role}">
+                    <option value="">Any role</option>
+                    <option th:each="roleOption : ${roleOptions}" th:value="${roleOption}" th:text="${roleOption}"></option>
+                </select>
             </div>
             <div class="col-md-3">
                 <label class="form-label" for="region">Region</label>
-                <input id="region" class="form-control" th:field="*{region}">
+                <select id="region" class="form-select" th:field="*{region}">
+                    <option value="">Any region</option>
+                    <option th:each="regionOption : ${regionOptions}" th:value="${regionOption}" th:text="${regionOption}"></option>
+                </select>
             </div>
             <div class="col-md-3">
                 <label class="form-label" for="mode">Search mode</label>

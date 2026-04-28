@@ -29,15 +29,27 @@
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label class="form-label" for="requiredRank">Required rank</label>
-                        <input id="requiredRank" class="form-control" th:field="*{requiredRank}">
+                        <select id="requiredRank" class="form-select" th:field="*{requiredRank}">
+                            <option value="">Any rank</option>
+                            <option th:each="rankOption : ${rankOptions}" th:value="${rankOption}" th:text="${rankOption}"></option>
+                        </select>
+                        <div class="text-danger small" th:errors="*{requiredRank}"></div>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" for="roleNeeded">Role needed</label>
-                        <input id="roleNeeded" class="form-control" th:field="*{roleNeeded}">
+                        <select id="roleNeeded" class="form-select" th:field="*{roleNeeded}">
+                            <option value="">Any role</option>
+                            <option th:each="roleOption : ${roleOptions}" th:value="${roleOption}" th:text="${roleOption}"></option>
+                        </select>
+                        <div class="text-danger small" th:errors="*{roleNeeded}"></div>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label" for="region">Region</label>
-                        <input id="region" class="form-control" th:field="*{region}">
+                        <select id="region" class="form-select" th:field="*{region}">
+                            <option value="">Any region</option>
+                            <option th:each="regionOption : ${regionOptions}" th:value="${regionOption}" th:text="${regionOption}"></option>
+                        </select>
+                        <div class="text-danger small" th:errors="*{region}"></div>
                     </div>
                 </div>
                 <div class="mb-3" th:if="${editMode}">
