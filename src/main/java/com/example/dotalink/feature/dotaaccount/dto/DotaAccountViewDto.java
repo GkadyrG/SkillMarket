@@ -4,11 +4,12 @@ import java.time.LocalDateTime;
 
 public record DotaAccountViewDto(
         Long id,
-        String steamId,
-        String accountId,
+        Long accountId,
+        String personaName,
         String avatarUrl,
         String profileUrl,
-        Integer mmr,
+        Integer rankTier,
+        Integer leaderboardRank,
         LocalDateTime lastSyncAt
 ) {
 }

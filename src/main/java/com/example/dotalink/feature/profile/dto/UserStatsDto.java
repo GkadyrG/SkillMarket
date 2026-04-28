@@ -7,7 +7,7 @@ public class UserStatsDto {
 
     private String username;
     private String nickname;
-    private Integer mmr;
+    private Integer rankTier;
     private List<String> favoriteHeroes = new ArrayList<>();
     private double averageRating;
     private long reviewsCount;
@@ -28,12 +28,12 @@ public class UserStatsDto {
         this.nickname = nickname;
     }
 
-    public Integer getMmr() {
-        return mmr;
+    public Integer getRankTier() {
+        return rankTier;
     }
 
-    public void setMmr(Integer mmr) {
-        this.mmr = mmr;
+    public void setRankTier(Integer rankTier) {
+        this.rankTier = rankTier;
     }
 
     public List<String> getFavoriteHeroes() {

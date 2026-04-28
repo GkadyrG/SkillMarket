@@ -22,7 +22,7 @@
         <div class="card-body">
             <h2 class="h5 mb-3" th:text="${stats.nickname} + ' (' + ${stats.username} + ')'">Nickname (username)</h2>
 
-            <p class="mb-2"><strong>MMR:</strong> <span th:text="${stats.mmr ?: '-'}">-</span></p>
+            <p class="mb-2"><strong>Rank tier:</strong> <span th:text="${stats.rankTier ?: '-'}">-</span></p>
             <p class="mb-2"><strong>Average rating:</strong> <span th:text="${#numbers.formatDecimal(stats.averageRating, 1, 2)} + ' / 5'">0.00 / 5</span></p>
             <p class="mb-3"><strong>Reviews count:</strong> <span th:text="${stats.reviewsCount}">0</span></p>
 

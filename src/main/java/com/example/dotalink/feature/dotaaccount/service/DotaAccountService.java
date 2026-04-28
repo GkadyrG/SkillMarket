@@ -2,19 +2,20 @@ package com.example.dotalink.feature.dotaaccount.service;
 
 import com.example.dotalink.common.exception.DotaAccountNotFoundException;
 import com.example.dotalink.common.exception.UserNotFoundException;
-import com.example.dotalink.feature.dotaaccount.dto.DotaAccountForm;
 import com.example.dotalink.feature.dotaaccount.dto.DotaAccountViewDto;
 import com.example.dotalink.feature.dotaaccount.model.DotaAccount;
 import com.example.dotalink.feature.dotaaccount.repository.DotaAccountRepository;
+import com.example.dotalink.feature.dotastats.service.DotaStatsService;
 import com.example.dotalink.feature.user.model.User;
 import com.example.dotalink.feature.user.repository.UserRepository;
-import com.example.dotalink.integration.dota.DotaExternalProfile;
-import com.example.dotalink.integration.dota.DotaApiClient;
+import com.example.dotalink.integration.opendota.OpenDotaClient;
+import com.example.dotalink.integration.opendota.OpenDotaPlayerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -24,14 +25,17 @@ public class DotaAccountService {
 
     private final UserRepository userRepository;
     private final DotaAccountRepository dotaAccountRepository;
-    private final DotaApiClient dotaApiClient;
+    private final OpenDotaClient openDotaClient;
+    private final DotaStatsService dotaStatsService;
 
     public DotaAccountService(UserRepository userRepository,
                               DotaAccountRepository dotaAccountRepository,
-                              DotaApiClient dotaApiClient) {
+                              OpenDotaClient openDotaClient,
+                              DotaStatsService dotaStatsService) {
         this.userRepository = userRepository;
         this.dotaAccountRepository = dotaAccountRepository;
-        this.dotaApiClient = dotaApiClient;
+        this.openDotaClient = openDotaClient;
+        this.dotaStatsService = dotaStatsService;
     }
 
     @Transactional(readOnly = true)
@@ -46,22 +50,33 @@ public class DotaAccountService {
     }
 
     @Transactional
-    public DotaAccount upsertForUser(String username, DotaAccountForm form) {
+    public DotaAccount linkDotaAccount(String username, Long accountId) {
+        validateAccountId(accountId);
+        log.info("Starting Dota account linking: username={}, accountId={}", username, accountId);
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + username));
 
+        OpenDotaPlayerResponse playerResponse = openDotaClient.getPlayerByAccountId(accountId);
+        if (playerResponse.profile() == null) {
+            throw new DotaAccountNotFoundException("Player profile for account_id " + accountId + " was not found");
+        }
+
         DotaAccount account = dotaAccountRepository.findByUserId(user.getId()).orElseGet(DotaAccount::new);
         account.setUser(user);
-        account.setSteamId(form.getSteamId().trim());
-        account.setAccountId(clean(form.getAccountId()));
-        account.setProfileUrl(clean(form.getProfileUrl()));
-        account.setAvatarUrl(clean(form.getAvatarUrl()));
-
-        dotaApiClient.fetchProfileBySteamId(account.getSteamId())
-                .ifPresent(externalProfile -> applyExternalData(account, externalProfile));
+        account.setAccountId(accountId);
+        account.setPersonaName(playerResponse.profile().personaname());
+        account.setAvatarUrl(playerResponse.profile().avatarfull());
+        account.setProfileUrl(playerResponse.profile().profileurl());
+        account.setRankTier(playerResponse.rank_tier());
+        account.setLeaderboardRank(playerResponse.leaderboard_rank());
+        account.setLastSyncAt(LocalDateTime.now());
+        user.setDotaAccount(account);
 
         DotaAccount saved = dotaAccountRepository.save(account);
-        log.info("DotaAccount saved: userId={}, dotaAccountId={}, steamId={}", user.getId(), saved.getId(), saved.getSteamId());
+        dotaStatsService.syncPlayerStats(accountId);
+        log.info("Dota account linked successfully: username={}, accountId={}, dotaAccountId={}",
+                username, accountId, saved.getId());
         return saved;
     }
 
@@ -78,45 +93,23 @@ public class DotaAccountService {
     }
 
     @Transactional(readOnly = true)
-    public DotaAccountForm toForm(DotaAccount account) {
-        DotaAccountForm form = new DotaAccountForm();
-        form.setSteamId(account.getSteamId());
-        form.setAccountId(account.getAccountId());
-        form.setProfileUrl(account.getProfileUrl());
-        form.setAvatarUrl(account.getAvatarUrl());
-        return form;
-    }
-
-    @Transactional(readOnly = true)
     public DotaAccountViewDto toViewDto(DotaAccount account) {
         return new DotaAccountViewDto(
                 account.getId(),
-                account.getSteamId(),
                 account.getAccountId(),
+                account.getPersonaName(),
                 account.getAvatarUrl(),
                 account.getProfileUrl(),
-                account.getMmr(),
+                account.getRankTier(),
+                account.getLeaderboardRank(),
                 account.getLastSyncAt()
         );
     }
 
-    private String clean(String value) {
-        if (value == null) {
-            return null;
-        }
-        String normalized = value.trim();
-        return normalized.isEmpty() ? null : normalized;
-    }
-
-    private void applyExternalData(DotaAccount account, DotaExternalProfile externalProfile) {
-        if (account.getAccountId() == null && externalProfile.accountId() != null) {
-            account.setAccountId(externalProfile.accountId());
-        }
-        if (account.getProfileUrl() == null && externalProfile.profileUrl() != null) {
-            account.setProfileUrl(externalProfile.profileUrl());
-        }
-        if (account.getAvatarUrl() == null && externalProfile.avatarUrl() != null) {
-            account.setAvatarUrl(externalProfile.avatarUrl());
+    private void validateAccountId(Long accountId) {
+        if (accountId == null || accountId <= 0) {
+            log.warn("Invalid Dota account ID received: {}", accountId);
+            throw new IllegalArgumentException("Dota account ID must be a positive number");
         }
     }
 }

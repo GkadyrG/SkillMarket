@@ -1,8 +1,10 @@
 package com.example.dotalink.feature.dotaaccount.controller;
 
+import com.example.dotalink.common.exception.DotaAccountNotFoundException;
+import com.example.dotalink.common.exception.ExternalApiException;
 import com.example.dotalink.feature.dotaaccount.dto.DotaAccountForm;
 import com.example.dotalink.feature.dotaaccount.service.DotaAccountService;
-import com.example.dotalink.integration.dota.SteamApiProperties;
+import com.example.dotalink.feature.dotastats.service.DotaStatsService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,27 +19,34 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class DotaAccountController {
 
     private final DotaAccountService dotaAccountService;
-    private final SteamApiProperties steamApiProperties;
+    private final DotaStatsService dotaStatsService;
 
     public DotaAccountController(DotaAccountService dotaAccountService,
-                                 SteamApiProperties steamApiProperties) {
+                                 DotaStatsService dotaStatsService) {
         this.dotaAccountService = dotaAccountService;
-        this.steamApiProperties = steamApiProperties;
+        this.dotaStatsService = dotaStatsService;
     }
 
-    @GetMapping("/account/dota")
+    @GetMapping("/profile/dota/link")
     public String dotaAccountPage(Authentication authentication, Model model) {
         var account = dotaAccountService.getForUser(authentication.getName());
         model.addAttribute("account", account.orElse(null));
-        model.addAttribute("steamIntegrationEnabled", steamApiProperties.isEnabled());
+        dotaStatsService.syncHeroCatalogIfNeeded();
+        account.ifPresent(dotaAccount -> dotaStatsService.syncPlayerStatsIfMissing(dotaAccount.getAccountId()));
+        model.addAttribute("accountRankDisplay", account
+                .map(dotaAccount -> dotaStatsService.formatRankTier(dotaAccount.getRankTier()))
+                .orElse("-"));
+        addStatsIfAvailable(authentication.getName(), model);
 
         if (!model.containsAttribute("dotaAccountForm")) {
-            model.addAttribute("dotaAccountForm", account.map(dotaAccountService::toForm).orElse(new DotaAccountForm()));
+            DotaAccountForm form = new DotaAccountForm();
+            account.ifPresent(dotaAccount -> form.setAccountId(dotaAccount.getAccountId()));
+            model.addAttribute("dotaAccountForm", form);
         }
-        return "account/dota";
+        return "profile/dota-link";
     }
 
-    @PostMapping("/account/dota")
+    @PostMapping("/profile/dota/link")
     public String saveDotaAccount(
             Authentication authentication,
             @Valid @ModelAttribute("dotaAccountForm") DotaAccountForm form,
@@ -47,18 +56,41 @@ public class DotaAccountController {
     ) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("account", dotaAccountService.getForUser(authentication.getName()).orElse(null));
-            return "account/dota";
+            model.addAttribute("accountRankDisplay", dotaAccountService.getForUser(authentication.getName())
+                    .map(dotaAccount -> dotaStatsService.formatRankTier(dotaAccount.getRankTier()))
+                    .orElse("-"));
+            addStatsIfAvailable(authentication.getName(), model);
+            return "profile/dota-link";
         }
 
-        dotaAccountService.upsertForUser(authentication.getName(), form);
-        redirectAttributes.addFlashAttribute("successMessage", "Dota account saved successfully");
-        return "redirect:/account/dota";
+        try {
+            dotaAccountService.linkDotaAccount(authentication.getName(), form.getAccountId());
+        } catch (DotaAccountNotFoundException | ExternalApiException | IllegalArgumentException ex) {
+            model.addAttribute("account", dotaAccountService.getForUser(authentication.getName()).orElse(null));
+            model.addAttribute("accountRankDisplay", dotaAccountService.getForUser(authentication.getName())
+                    .map(dotaAccount -> dotaStatsService.formatRankTier(dotaAccount.getRankTier()))
+                    .orElse("-"));
+            addStatsIfAvailable(authentication.getName(), model);
+            model.addAttribute("errorMessage", ex.getMessage());
+            return "profile/dota-link";
+        }
+
+        redirectAttributes.addFlashAttribute("successMessage", "Dota account linked successfully");
+        return "redirect:/profile/dota/link";
     }
 
-    @PostMapping("/account/dota/delete")
+    @PostMapping("/profile/dota/unlink")
     public String deleteDotaAccount(Authentication authentication, RedirectAttributes redirectAttributes) {
         dotaAccountService.deleteForUser(authentication.getName());
-        redirectAttributes.addFlashAttribute("successMessage", "Dota account deleted");
-        return "redirect:/account/dota";
+        redirectAttributes.addFlashAttribute("successMessage", "Dota account unlinked");
+        return "redirect:/profile/me";
+    }
+
+    private void addStatsIfAvailable(String username, Model model) {
+        try {
+            model.addAttribute("playerStats", dotaStatsService.getPlayerStatsByUsername(username));
+        } catch (DotaAccountNotFoundException ignored) {
+            model.addAttribute("playerStats", null);
+        }
     }
 }

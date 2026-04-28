@@ -19,17 +19,17 @@ public class UserProfileDto {
     )
     private String rank;
 
-    @Size(max = 40, message = "Region is too long")
+    @Pattern(
+            regexp = "^$|^(EU West|EU East|CIS|North America|South America|Southeast Asia|China)$",
+            message = "Region must be a valid region"
+    )
     private String region;
-
-    @Size(max = 40, message = "Play time is too long")
-    private String playTime;
 
     @Size(max = 2000, message = "About is too long")
     private String about;
 
-    @Size(max = 255, message = "Preferred roles are too long")
     private String preferredRolesText;
+    private List<String> preferredRoles = new ArrayList<>();
 
     private List<Long> favoriteHeroIds = new ArrayList<>();
     private List<String> favoriteHeroNames = new ArrayList<>();
@@ -59,14 +59,6 @@ public class UserProfileDto {
         this.region = region;
     }
 
-    public String getPlayTime() {
-        return playTime;
-    }
-
-    public void setPlayTime(String playTime) {
-        this.playTime = playTime;
-    }
-
     public String getAbout() {
         return about;
     }
@@ -81,6 +73,14 @@ public class UserProfileDto {
 
     public void setPreferredRolesText(String preferredRolesText) {
         this.preferredRolesText = preferredRolesText;
+    }
+
+    public List<String> getPreferredRoles() {
+        return preferredRoles;
+    }
+
+    public void setPreferredRoles(List<String> preferredRoles) {
+        this.preferredRoles = preferredRoles;
     }
 
     public List<Long> getFavoriteHeroIds() {

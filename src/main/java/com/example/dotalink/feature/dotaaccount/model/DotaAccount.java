@@ -24,11 +24,11 @@ public class DotaAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "steam_id", nullable = false, length = 32)
-    private String steamId;
+    @Column(name = "account_id")
+    private Long accountId;
 
-    @Column(name = "account_id", length = 32)
-    private String accountId;
+    @Column(name = "persona_name", length = 255)
+    private String personaName;
 
     @Column(name = "avatar_url", length = 512)
     private String avatarUrl;
@@ -36,8 +36,11 @@ public class DotaAccount {
     @Column(name = "profile_url", length = 512)
     private String profileUrl;
 
-    @Column
-    private Integer mmr;
+    @Column(name = "rank_tier")
+    private Integer rankTier;
+
+    @Column(name = "leaderboard_rank")
+    private Integer leaderboardRank;
 
     @Column(name = "last_sync_at")
     private LocalDateTime lastSyncAt;
@@ -72,20 +75,20 @@ public class DotaAccount {
         this.id = id;
     }
 
-    public String getSteamId() {
-        return steamId;
-    }
-
-    public void setSteamId(String steamId) {
-        this.steamId = steamId;
-    }
-
-    public String getAccountId() {
+    public Long getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    public String getPersonaName() {
+        return personaName;
+    }
+
+    public void setPersonaName(String personaName) {
+        this.personaName = personaName;
     }
 
     public String getAvatarUrl() {
@@ -104,12 +107,20 @@ public class DotaAccount {
         this.profileUrl = profileUrl;
     }
 
-    public Integer getMmr() {
-        return mmr;
+    public Integer getRankTier() {
+        return rankTier;
     }
 
-    public void setMmr(Integer mmr) {
-        this.mmr = mmr;
+    public void setRankTier(Integer rankTier) {
+        this.rankTier = rankTier;
+    }
+
+    public Integer getLeaderboardRank() {
+        return leaderboardRank;
+    }
+
+    public void setLeaderboardRank(Integer leaderboardRank) {
+        this.leaderboardRank = leaderboardRank;
     }
 
     public LocalDateTime getLastSyncAt() {

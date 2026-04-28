@@ -6,6 +6,8 @@ import com.example.dotalink.feature.hero.model.Hero;
 import com.example.dotalink.feature.hero.repository.HeroRepository;
 import com.example.dotalink.feature.profile.dto.UserProfileDto;
 import com.example.dotalink.feature.profile.model.DotaRank;
+import com.example.dotalink.feature.profile.model.DotaRegion;
+import com.example.dotalink.feature.profile.model.DotaRolePreference;
 import com.example.dotalink.feature.profile.model.UserProfile;
 import com.example.dotalink.feature.profile.repository.UserProfileRepository;
 import com.example.dotalink.feature.user.model.User;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 @Service
 public class ProfileService {
@@ -66,10 +69,10 @@ public class ProfileService {
 
         profile.setNickname(form.getNickname().trim());
         profile.setRank(DotaRank.normalizeOrNull(form.getRank()));
-        profile.setRegion(clean(form.getRegion()));
-        profile.setPlayTime(clean(form.getPlayTime()));
+        profile.setRegion(DotaRegion.normalizeOrNull(form.getRegion()));
+        profile.setPlayTime(null);
         profile.setAbout(clean(form.getAbout()));
-        profile.setPreferredRolesText(clean(form.getPreferredRolesText()));
+        profile.setPreferredRolesText(toPreferredRolesText(form.getPreferredRoles()));
 
         Set<Hero> heroes = new HashSet<>();
         if (form.getFavoriteHeroIds() != null && !form.getFavoriteHeroIds().isEmpty()) {
@@ -96,13 +99,32 @@ public class ProfileService {
         dto.setNickname(profile.getNickname());
         dto.setRank(profile.getRank());
         dto.setRegion(profile.getRegion());
-        dto.setPlayTime(profile.getPlayTime());
         dto.setAbout(profile.getAbout());
         dto.setPreferredRolesText(profile.getPreferredRolesText());
+        dto.setPreferredRoles(parsePreferredRoles(profile.getPreferredRolesText()));
         dto.setFavoriteHeroIds(profile.getFavoriteHeroes().stream().map(Hero::getId).toList());
         dto.setFavoriteHeroNames(profile.getFavoriteHeroes().stream().map(Hero::getName).toList());
         dto.setUsername(profile.getUser() != null ? profile.getUser().getUsername() : null);
         return dto;
+    }
+
+    private String toPreferredRolesText(List<String> preferredRoles) {
+        List<String> normalizedRoles = DotaRolePreference.normalizeList(preferredRoles);
+        if (normalizedRoles.isEmpty()) {
+            return null;
+        }
+
+        StringJoiner joiner = new StringJoiner(", ");
+        normalizedRoles.forEach(joiner::add);
+        return joiner.toString();
+    }
+
+    private List<String> parsePreferredRoles(String preferredRolesText) {
+        if (preferredRolesText == null || preferredRolesText.isBlank()) {
+            return List.of();
+        }
+
+        return DotaRolePreference.normalizeList(List.of(preferredRolesText.split(",")));
     }
 
     private String clean(String value) {

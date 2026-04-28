@@ -1,53 +1,19 @@
 package com.example.dotalink.feature.dotaaccount.dto;
 
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 public class DotaAccountForm {
 
-    @Pattern(regexp = "^[0-9]{8,20}$", message = "Steam ID must contain 8-20 digits")
-    private String steamId;
+    @NotNull(message = "Dota account ID is required")
+    @Positive(message = "Dota account ID must be a positive number")
+    private Long accountId;
 
-    @Pattern(regexp = "^$|^[0-9]{1,20}$", message = "Account ID must contain only digits")
-    private String accountId;
-
-    @Pattern(regexp = "^$|^https?://.*$", message = "Profile URL must start with http:// or https://")
-    @Size(max = 512, message = "Profile URL is too long")
-    private String profileUrl;
-
-    @Pattern(regexp = "^$|^https?://.*$", message = "Avatar URL must start with http:// or https://")
-    @Size(max = 512, message = "Avatar URL is too long")
-    private String avatarUrl;
-
-    public String getSteamId() {
-        return steamId;
-    }
-
-    public void setSteamId(String steamId) {
-        this.steamId = steamId;
-    }
-
-    public String getAccountId() {
+    public Long getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
+    public void setAccountId(Long accountId) {
         this.accountId = accountId;
-    }
-
-    public String getProfileUrl() {
-        return profileUrl;
-    }
-
-    public void setProfileUrl(String profileUrl) {
-        this.profileUrl = profileUrl;
-    }
-
-    public String getAvatarUrl() {
-        return avatarUrl;
-    }
-
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
     }
 }

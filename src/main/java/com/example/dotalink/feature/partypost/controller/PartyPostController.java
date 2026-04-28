@@ -87,7 +87,7 @@ public class PartyPostController {
                 model.addAttribute("canManageApplications", false);
             }
             model.addAttribute("ownPostApplyMessage",
-                    "Вы автор этого объявления. Откликаться на собственный запрос нельзя.");
+                    "Р’С‹ Р°РІС‚РѕСЂ СЌС‚РѕРіРѕ РѕР±СЉСЏРІР»РµРЅРёСЏ. РћС‚РєР»РёРєР°С‚СЊСЃСЏ РЅР° СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ РЅРµР»СЊР·СЏ.");
         } else {
             model.addAttribute("applications", java.util.List.of());
             model.addAttribute("canManageApplications", false);
@@ -167,13 +167,13 @@ public class PartyPostController {
         }
 
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Некорректные данные заявки.");
+            redirectAttributes.addFlashAttribute("errorMessage", "РќРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ Р·Р°СЏРІРєРё.");
             return "redirect:/posts/" + id;
         }
 
         try {
             partyApplicationService.apply(id, authentication.getName(), applicationForm);
-            redirectAttributes.addFlashAttribute("successMessage", "Заявка отправлена.");
+            redirectAttributes.addFlashAttribute("successMessage", "Р—Р°СЏРІРєР° РѕС‚РїСЂР°РІР»РµРЅР°.");
         } catch (DuplicatePartyApplicationException | AccessDeniedBusinessException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
@@ -213,3 +213,4 @@ public class PartyPostController {
         return "redirect:/posts/" + updated.getPostId();
     }
 }
+
