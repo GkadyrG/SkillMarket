@@ -8,6 +8,12 @@ import com.example.dotalink.feature.partypost.dto.PartyPostDto;
 import com.example.dotalink.feature.partypost.dto.PartyPostFilterDto;
 import com.example.dotalink.feature.partypost.dto.PartyPostUpdateDto;
 import com.example.dotalink.feature.partypost.service.PartyPostService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +36,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/posts")
+@Tag(name = "Party Posts API", description = "REST API for party posts and applications")
 public class PartyPostRestController {
 
     private final PartyPostService partyPostService;
@@ -42,6 +49,8 @@ public class PartyPostRestController {
     }
 
     @GetMapping
+    @Operation(summary = "Get party posts", description = "Returns paginated party posts filtered by rank, role and region")
+    @ApiResponse(responseCode = "200", description = "Party posts page returned")
     public Page<PartyPostDto> getPosts(@RequestParam(defaultValue = "") String rank,
                                        @RequestParam(defaultValue = "") String role,
                                        @RequestParam(defaultValue = "") String region,
@@ -57,12 +66,23 @@ public class PartyPostRestController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create party post")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Party post created", content = @Content(schema = @Schema(implementation = PartyPostDto.class))),
+            @ApiResponse(responseCode = "403", description = "Authentication required")
+    })
     public PartyPostDto createPost(@Valid @RequestBody PartyPostCreateDto request, Authentication authentication) {
         Long id = partyPostService.createPost(authentication.getName(), request);
         return partyPostService.getPost(id);
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update party post")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Party post updated", content = @Content(schema = @Schema(implementation = PartyPostDto.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Post not found")
+    })
     public PartyPostDto updatePost(@PathVariable Long id,
                                    @Valid @RequestBody PartyPostUpdateDto request,
                                    Authentication authentication) {
@@ -72,11 +92,22 @@ public class PartyPostRestController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete party post")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Party post deleted"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Post not found")
+    })
     public void deletePost(@PathVariable Long id, Authentication authentication) {
         partyPostService.deletePost(id, authentication.getName());
     }
 
     @PostMapping("/{id}/apply")
+    @Operation(summary = "Apply to party post")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Application created"),
+            @ApiResponse(responseCode = "403", description = "Authentication required or forbidden")
+    })
     public Map<String, Object> applyToPost(@PathVariable Long id,
                                            @Valid @RequestBody PartyApplicationDto request,
                                            Authentication authentication) {

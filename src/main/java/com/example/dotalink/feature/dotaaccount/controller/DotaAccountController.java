@@ -6,6 +6,8 @@ import com.example.dotalink.feature.dotaaccount.dto.DotaAccountForm;
 import com.example.dotalink.feature.dotaaccount.model.DotaAccount;
 import com.example.dotalink.feature.dotaaccount.service.DotaAccountService;
 import com.example.dotalink.feature.dotastats.service.DotaStatsService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
+@Tag(name = "Dota Account", description = "Dota account link and management")
 public class DotaAccountController {
 
     private static final Logger log = LoggerFactory.getLogger(DotaAccountController.class);
@@ -33,6 +36,7 @@ public class DotaAccountController {
     }
 
     @GetMapping("/profile/dota/link")
+    @Operation(summary = "Open Dota account page")
     public String dotaAccountPage(Authentication authentication, Model model) {
         var account = dotaAccountService.getForUser(authentication.getName());
         model.addAttribute("account", account.orElse(null));
@@ -50,6 +54,7 @@ public class DotaAccountController {
     }
 
     @PostMapping("/profile/dota/link")
+    @Operation(summary = "Create or update linked Dota account")
     public String saveDotaAccount(
             Authentication authentication,
             @Valid @ModelAttribute("dotaAccountForm") DotaAccountForm form,
@@ -87,6 +92,7 @@ public class DotaAccountController {
     }
 
     @PostMapping("/profile/dota/unlink")
+    @Operation(summary = "Delete linked Dota account")
     public String deleteDotaAccount(Authentication authentication, RedirectAttributes redirectAttributes) {
         dotaAccountService.deleteForUser(authentication.getName());
         redirectAttributes.addFlashAttribute("successMessage", "Dota account unlinked");

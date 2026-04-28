@@ -1,18 +1,26 @@
 package com.example.dotalink.feature.application.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
+@Schema(description = "Party application request and response model")
 public class PartyApplicationDto {
 
     @Size(max = 1000, message = "Application message is too long")
+    @Schema(description = "Application message", example = "Can join after 19:00")
     private String message;
 
+    @Schema(description = "Application id", example = "5")
     private Long id;
+    @Schema(description = "Related post id", example = "1")
     private Long postId;
+    @Schema(description = "Applicant username", example = "demo")
     private String applicantUsername;
+    @Schema(description = "Application status", example = "NEW")
     private String status;
+    @Schema(description = "Creation time")
     private LocalDateTime createdAt;
 
     public String getMessage() {

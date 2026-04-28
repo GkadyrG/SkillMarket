@@ -10,6 +10,8 @@ import com.example.dotalink.feature.profile.service.ProfileService;
 import com.example.dotalink.feature.profile.service.UserStatsService;
 import com.example.dotalink.feature.review.dto.ReviewCreateDto;
 import com.example.dotalink.feature.review.service.ReviewService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
+@Tag(name = "Profiles", description = "Profile pages, public profiles and review-related pages")
 public class ProfileController {
 
     private final ProfileService profileService;
@@ -41,6 +44,7 @@ public class ProfileController {
     }
 
     @GetMapping("/profile/me")
+    @Operation(summary = "Open current user profile page")
     public String myProfile(Authentication authentication, Model model) {
         model.addAttribute("profile", profileService.getMyProfile(authentication.getName()));
         model.addAttribute("dotaAccount", dotaAccountService.getForUser(authentication.getName()).orElse(null));
@@ -48,6 +52,7 @@ public class ProfileController {
     }
 
     @GetMapping("/profile/edit")
+    @Operation(summary = "Open profile edit page")
     public String editProfilePage(Authentication authentication, Model model) {
         if (!model.containsAttribute("profileForm")) {
             model.addAttribute("profileForm", profileService.getEditDto(authentication.getName()));
@@ -60,6 +65,7 @@ public class ProfileController {
     }
 
     @PostMapping("/profile/edit")
+    @Operation(summary = "Update current user profile")
     public String editProfile(
             Authentication authentication,
             @Valid @ModelAttribute("profileForm") UserProfileDto profileForm,
@@ -81,6 +87,7 @@ public class ProfileController {
     }
 
     @GetMapping("/profiles/{username}")
+    @Operation(summary = "Open public profile page")
     public String publicProfile(@PathVariable String username, Authentication authentication, Model model) {
         model.addAttribute("profile", profileService.getPublicProfile(username));
         model.addAttribute("reviews", reviewService.getReviewsForUser(username));
@@ -93,6 +100,7 @@ public class ProfileController {
     }
 
     @PostMapping("/profiles/{username}/reviews")
+    @Operation(summary = "Create review for a user")
     public String createReview(@PathVariable String username,
                                Authentication authentication,
                                @Valid @ModelAttribute("reviewForm") ReviewCreateDto reviewForm,
@@ -118,12 +126,14 @@ public class ProfileController {
     }
 
     @GetMapping("/profiles/{username}/stats")
+    @Operation(summary = "Open user statistics page")
     public String userStats(@PathVariable String username, Model model) {
         model.addAttribute("stats", userStatsService.getStatsByUsername(username));
         return "profile/stats";
     }
 
     @GetMapping("/profiles/stats/review-leaders")
+    @Operation(summary = "Open review analytics page")
     public String reviewLeaders(@RequestParam(defaultValue = "1") long minReviews, Model model) {
         model.addAttribute("minReviews", Math.max(minReviews, 1));
         model.addAttribute("leaders", userStatsService.getUsersAbovePlatformAverage(Math.max(minReviews, 1)));

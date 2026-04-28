@@ -13,6 +13,8 @@ import com.example.dotalink.feature.profile.model.DotaRank;
 import com.example.dotalink.feature.profile.model.DotaRegion;
 import com.example.dotalink.feature.profile.model.DotaRolePreference;
 import com.example.dotalink.feature.partypost.service.PartyPostService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
+@Tag(name = "Party Posts Pages", description = "HTML pages for party posts and applications")
 public class PartyPostController {
 
     private static final Logger log = LoggerFactory.getLogger(PartyPostController.class);
@@ -45,6 +48,7 @@ public class PartyPostController {
     }
 
     @GetMapping({"/party", "/posts"})
+    @Operation(summary = "Open party posts list page")
     public String listPosts(@ModelAttribute("filter") PartyPostFilterDto filter,
                             @RequestParam(defaultValue = "0") int page,
                             @RequestParam(defaultValue = "10") int size,
@@ -56,6 +60,7 @@ public class PartyPostController {
     }
 
     @GetMapping("/posts/{id}")
+    @Operation(summary = "Open party post details page")
     public String showPost(@PathVariable Long id, Authentication authentication, Model model) {
         PartyPostDto post = partyPostService.getPost(id);
         model.addAttribute("post", post);
@@ -106,6 +111,7 @@ public class PartyPostController {
     }
 
     @GetMapping("/posts/create")
+    @Operation(summary = "Open party post creation page")
     public String createPage(Model model) {
         if (!model.containsAttribute("postForm")) {
             model.addAttribute("postForm", new PartyPostCreateDto());
@@ -116,6 +122,7 @@ public class PartyPostController {
     }
 
     @PostMapping("/posts")
+    @Operation(summary = "Create party post from HTML form")
     public String createPost(Authentication authentication,
                              @Valid @ModelAttribute("postForm") PartyPostCreateDto postForm,
                              BindingResult bindingResult,
@@ -132,6 +139,7 @@ public class PartyPostController {
     }
 
     @GetMapping("/posts/{id}/edit")
+    @Operation(summary = "Open party post edit page")
     public String editPage(@PathVariable Long id, Authentication authentication, Model model) {
         if (!model.containsAttribute("postForm")) {
             model.addAttribute("postForm", partyPostService.getUpdateDto(id, authentication.getName()));
@@ -143,6 +151,7 @@ public class PartyPostController {
     }
 
     @PostMapping("/posts/{id}")
+    @Operation(summary = "Update party post from HTML form")
     public String updatePost(@PathVariable Long id,
                              Authentication authentication,
                              @Valid @ModelAttribute("postForm") PartyPostUpdateDto postForm,
@@ -161,6 +170,7 @@ public class PartyPostController {
     }
 
     @PostMapping("/posts/{id}/delete")
+    @Operation(summary = "Delete party post from HTML form")
     public String deletePost(@PathVariable Long id,
                              Authentication authentication,
                              RedirectAttributes redirectAttributes) {
@@ -170,6 +180,7 @@ public class PartyPostController {
     }
 
     @PostMapping("/posts/{id}/apply")
+    @Operation(summary = "Apply to a party post from HTML form")
     public String applyToPost(@PathVariable Long id,
                               Authentication authentication,
                               @Valid @ModelAttribute("applicationForm") PartyApplicationDto applicationForm,
@@ -195,6 +206,7 @@ public class PartyPostController {
     }
 
     @PostMapping("/applications/{id}/accept")
+    @Operation(summary = "Accept party application")
     public String acceptApplication(@PathVariable Long id,
                                     Authentication authentication,
                                     RedirectAttributes redirectAttributes) {
@@ -211,6 +223,7 @@ public class PartyPostController {
     }
 
     @PostMapping("/applications/{id}/reject")
+    @Operation(summary = "Reject party application")
     public String rejectApplication(@PathVariable Long id,
                                     Authentication authentication,
                                     RedirectAttributes redirectAttributes) {
@@ -232,4 +245,3 @@ public class PartyPostController {
         model.addAttribute("roleOptions", DotaRolePreference.valuesList());
     }
 }
-

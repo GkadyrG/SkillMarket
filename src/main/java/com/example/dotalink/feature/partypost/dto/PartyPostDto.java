@@ -1,18 +1,31 @@
 package com.example.dotalink.feature.partypost.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDateTime;
 
+@Schema(description = "Party post response model")
 public class PartyPostDto {
 
+    @Schema(description = "Post id", example = "1")
     private Long id;
+    @Schema(description = "Post title", example = "Need pos4 for ranked")
     private String title;
+    @Schema(description = "Post description")
     private String description;
+    @Schema(description = "Required rank", example = "Legend")
     private String requiredRank;
+    @Schema(description = "Needed role", example = "Soft Support")
     private String roleNeeded;
+    @Schema(description = "Region", example = "EU West")
     private String region;
+    @Schema(description = "Current status", example = "OPEN")
     private String status;
+    @Schema(description = "Author username", example = "demo")
     private String authorUsername;
+    @Schema(description = "Creation time")
     private LocalDateTime createdAt;
+    @Schema(description = "Applications count", example = "2")
     private long applicationsCount;
 
     public Long getId() {
