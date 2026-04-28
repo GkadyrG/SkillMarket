@@ -8,6 +8,9 @@
             <a class="nav-link" th:if="${showHomeButton}" th:href="@{/}">Home</a>
             <a class="nav-link" th:href="@{/posts}">Party</a>
             <a class="nav-link"
+               sec:authorize="hasRole('ADMIN')"
+               th:href="@{/admin/users}">Users</a>
+            <a class="nav-link"
                sec:authorize="isAuthenticated()"
                th:href="@{/profile/me}">My profile</a>
             <a class="nav-link"
